@@ -12,6 +12,8 @@ dist/
 
 # Literature-watch outputs
 lit-watch/
+idea-stage/
+research-wiki/
 data/openalex/
 data/aaai2026_metadata/
 data/aaai2026_papers/
