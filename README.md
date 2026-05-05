@@ -1,4 +1,160 @@
-# 🌙 ARIS-Code — Auto Research in Sleep
+# WorkflowIR: Controlled Agent Workflows for Reliable Literature Search
+
+This repository studies a simple but important question:
+
+> Can explicit workflow structure make tool-using LLM agents more reliable than free-form prompting?
+
+The first experimental domain is **academic literature search**. A free-form agent is asked to design queries, call OpenAlex, inspect retrieval counts, export papers, and write a summary. In practice, this kind of agent often times out, produces overly broad queries, misses required files, or fails to explain where the error happened. WorkflowIR turns the same task into a typed, auditable workflow so each step can be checked, repaired, and attributed.
+
+## What This Project Is
+
+WorkflowIR is a controlled sandbox and evaluation pipeline for multi-tool LLM agents. It represents an agent task as a small workflow graph whose nodes have:
+
+- `schema`: what input and output must look like;
+- `precondition`: what must be true before the node can run;
+- `effect`: what artifact or state change the node must produce;
+- `failure mode`: how errors are labeled when the node fails.
+
+In the current literature-search benchmark, the controlled agent workflow is:
+
+```text
+plan_queries
+  -> validate_query_plan
+  -> dry_run_counts
+  -> repair_queries
+  -> full_export
+  -> evaluate_results
+  -> verify_contract
+```
+
+The key idea is not to let an LLM remember the whole protocol by itself. The LLM or planner can propose a search strategy, but the WorkflowIR runner enforces the contract: query count limits, dry-run inspection, broad-query repair, zero-result recovery, full OpenAlex export, required output files, and machine-readable trace logs.
+
+## How It Works
+
+The repository contains three connected layers.
+
+**1. Controlled Sandbox**
+
+`scripts/build_controlled_litsearch_sandbox.py` generates a controlled literature-search task set with tool schemas, preconditions, effects, injected failures, and attribution labels.
+
+Output:
+
+```text
+data/controlled_sandbox/litsearch_v1/
+```
+
+**2. Real Baseline Agent Runs**
+
+`scripts/run_real_litwatch_trials.py` runs free-form ARIS/MiniMax/OpenAlex literature-search trials. These runs collect real agent failures instead of synthetic mistakes.
+
+In the seed run, the baseline agent produced:
+
+```text
+5/5 timeout
+4/5 missing final summary
+multiple broad queries
+partial protocol compliance
+```
+
+Trace dataset:
+
+```text
+data/real_agent_litwatch_traces/workflowir_seed/
+```
+
+**3. WorkflowIR-Controlled Agent**
+
+`scripts/run_workflowir_litsearch_trials.py` runs the same topic set through a controlled WorkflowIR pipeline. The runner executes deterministic OpenAlex calls, validates artifacts, repairs weak queries, and writes required reports.
+
+Seed comparison:
+
+```text
+Baseline free-form agent:
+  completion_rate = 0%
+  timeout_rate    = 100%
+
+WorkflowIR-controlled agent:
+  completion_rate     = 100%
+  timeout_rate        = 0%
+  contract_pass_rate  = 100%
+  full_export_rate    = 100%
+```
+
+Comparison report:
+
+```text
+data/workflowir_litsearch_eval/effectiveness_report.md
+```
+
+## Quick Start
+
+Build the controlled sandbox:
+
+```bash
+python3 scripts/build_controlled_litsearch_sandbox.py
+```
+
+Run the WorkflowIR-controlled literature-search evaluation:
+
+```bash
+python3 scripts/run_workflowir_litsearch_trials.py \
+  --config configs/workflowir_litsearch_trials.example.json \
+  --execute \
+  --max-results-per-query 50
+```
+
+Compare against the baseline batch:
+
+```bash
+python3 scripts/analyze_workflowir_litsearch_effectiveness.py \
+  --baseline-batch lit-watch/trial-batches/20260505T014639Z-workflowir-real-litwatch-seed/batch_manifest.json \
+  --workflowir-batch lit-watch/workflowir-batches/20260505T052451Z-workflowir-controlled-litsearch-seed/batch_manifest.json \
+  --out-dir data/workflowir_litsearch_eval
+```
+
+Open the visual explanation page locally:
+
+```text
+docs/workflowir_visual_learning.html
+```
+
+GitHub Pages entry:
+
+```text
+https://zhuyingqin.github.io/WorkflowIR/
+```
+
+## Repository Map
+
+```text
+configs/                         experiment configs and prompt contracts
+scripts/run_workflowir_litsearch_trials.py
+                                 WorkflowIR-controlled runner
+scripts/run_real_litwatch_trials.py
+                                 free-form baseline agent runner
+scripts/build_real_litwatch_trace_dataset.py
+                                 mines real agent artifacts into trace data
+scripts/build_controlled_litsearch_sandbox.py
+                                 controlled synthetic sandbox generator
+crates/runtime/assets/skills/openalex-search/
+                                 reproducible OpenAlex search skill
+data/controlled_sandbox/          controlled sandbox data
+data/real_agent_litwatch_traces/  real baseline trace data
+data/workflowir_litsearch_eval/   effectiveness comparison output
+docs/                            visual explanation and GitHub Pages site
+```
+
+## What The Current Results Prove
+
+The current experiment supports the claim that WorkflowIR improves **execution reliability**, **protocol compliance**, and **error attribution** for literature-search agents. It does not yet fully prove that the semantic quality of retrieved papers is always better. The next step is to add human or LLM top-k relevance grading for retrieval quality.
+
+---
+
+## Upstream Foundation: ARIS-Code
+
+This project is built on top of ARIS-Code, a multi-agent research automation CLI. The original ARIS-Code overview follows below because the WorkflowIR experiments reuse its agent runtime, skills, and literature-search infrastructure.
+
+![WorkflowIR visual map](docs/workflowir_benchmark_ai_map.png)
 
 ```
     ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
@@ -13,8 +169,6 @@
          executor  ←→  reviewer
          Let AI do research while you sleep
 ```
-
-![ARIS-Code Screenshot](docs/screenshot.png)
 
 > **Adversarial · Multi-Agent Research Automation CLI**
 > Executor acts · Reviewer critiques · Iterate to excellence
@@ -331,4 +485,3 @@ MIT License © 2025 ARIS-Code Contributors
 <div align="center">
   <sub>🌙 Let AI do research while you sleep · Built with ❤️ and Rust</sub>
 </div>
-
