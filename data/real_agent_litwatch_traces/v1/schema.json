@@ -1,0 +1,39 @@
+{
+  "run_trace": {
+    "required_fields": [
+      "dataset_id",
+      "dataset_version",
+      "run_id",
+      "status",
+      "artifacts",
+      "query_plan",
+      "openalex_manifest",
+      "text_stats"
+    ]
+  },
+  "tool_event": {
+    "event_types": [
+      "agent.prompt_created",
+      "agent.reviewer_direction_created",
+      "agent.query_plan_created",
+      "tool.openalex_export_started",
+      "tool.openalex_query",
+      "agent.summary_written",
+      "agent.blocked_record_written"
+    ]
+  },
+  "anomaly": {
+    "labels": [
+      "run.blocked_or_incomplete",
+      "run.completed_with_blocked_note",
+      "agent.missing_query_plan",
+      "agent.query_count_outside_protocol",
+      "agent.missing_summary",
+      "tool.openalex_export_missing",
+      "tool.openalex_empty_export",
+      "retrieval.high_duplicate_overlap",
+      "retrieval.zero_result_query",
+      "retrieval.query_too_broad"
+    ]
+  }
+}

@@ -1337,7 +1337,8 @@ fn extract_bundled_helpers(skill_name: &str) {
             let target_dir = std::path::PathBuf::from("shared-references");
             let target_path = target_dir.join(filename);
             if !target_path.exists() {
-                let _ = std::fs::create_dir_all(&target_dir);
+                let parent = target_path.parent().unwrap_or(&target_dir);
+                let _ = std::fs::create_dir_all(parent);
                 let _ = std::fs::write(&target_path, content);
             }
         }
@@ -1351,7 +1352,8 @@ fn extract_bundled_helpers(skill_name: &str) {
             let target_path = target_dir.join(filename);
             // Only extract if not already present (don't overwrite user edits)
             if !target_path.exists() {
-                let _ = std::fs::create_dir_all(&target_dir);
+                let parent = target_path.parent().unwrap_or(&target_dir);
+                let _ = std::fs::create_dir_all(parent);
                 let _ = std::fs::write(&target_path, content);
             }
         }

@@ -1,0 +1,21 @@
+{
+  "database": "data/paper_retrieval_db/papers.sqlite",
+  "source_runs_dir": "lit-watch/runs",
+  "counts": {
+    "runs": 22,
+    "unique_papers": 7777,
+    "paper_run_links": 11166,
+    "quality_flags": {
+      "low_observed_impact": 3072,
+      "missing_doi": 254,
+      "non_core_source": 3027,
+      "short_or_missing_abstract": 817,
+      "weak_evidence_metadata": 108
+    }
+  },
+  "quality_model": {
+    "quality_score": "0.28 integrity + 0.22 source + 0.22 evidence + 0.18 impact + 0.10 recency",
+    "run_retrieval_quality_score": "0.55 run relevance + 0.45 global quality",
+    "note": "Heuristic bootstrap scores. Use human/LLM relevance labels later to calibrate weights."
+  }
+}

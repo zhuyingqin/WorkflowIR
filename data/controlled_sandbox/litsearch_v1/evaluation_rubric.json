@@ -1,0 +1,55 @@
+{
+  "rubric_id": "controlled_sandbox_litsearch_eval_v1",
+  "metrics": [
+    {
+      "metric": "success_rate",
+      "definition": "Fraction of tasks whose final report satisfies must_include, must_exclude, and required_answer_facets.",
+      "computed_from": [
+        "oracle.must_include_paper_ids",
+        "oracle.must_exclude_paper_ids",
+        "oracle.required_answer_facets"
+      ]
+    },
+    {
+      "metric": "invalid_call_rate",
+      "definition": "Invalid tool calls divided by total tool calls, where invalid means schema, precondition, wrong-order, or unavailable-tool violation.",
+      "computed_from": [
+        "tool trace",
+        "tools.json preconditions",
+        "tools.json input_schema"
+      ]
+    },
+    {
+      "metric": "repair_success",
+      "definition": "Fraction of injected-fault tasks where the agent notices the symptom and recovers the oracle-required papers or report sections.",
+      "computed_from": [
+        "tasks.jsonl injections",
+        "oracle",
+        "final report"
+      ]
+    },
+    {
+      "metric": "error_localization_accuracy",
+      "definition": "Whether the agent's primary attribution label matches oracle.ground_truth_attribution_labels.",
+      "computed_from": [
+        "oracle.ground_truth_attribution_labels",
+        "agent attribution output"
+      ]
+    },
+    {
+      "metric": "cost_reduction",
+      "definition": "Relative reduction in tool calls or estimated token/tool cost against a baseline trace for the same task.",
+      "computed_from": [
+        "expected_trace",
+        "agent trace",
+        "optional cost model"
+      ]
+    }
+  ],
+  "baseline_families": [
+    "ReAct",
+    "DAG-only",
+    "WorkflowIR without checks",
+    "WorkflowIR full"
+  ]
+}

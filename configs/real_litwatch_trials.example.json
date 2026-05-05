@@ -1,0 +1,39 @@
+{
+  "batch_name": "workflowir-real-litwatch-seed",
+  "output_dir": "lit-watch/real-agent-trials",
+  "trace_out_dir": "data/real_agent_litwatch_traces/workflowir_seed",
+  "wiki_dir": "research-wiki",
+  "openalex_skill_dir": "crates/runtime/assets/skills/openalex-search",
+  "model": "MiniMax-M2.7",
+  "permission_mode": "danger-full-access",
+  "allowed_tools": "LlmReview,Skill,read,write,edit,glob,grep,bash",
+  "lookback_days": 730,
+  "max_results_per_query": 150,
+  "dry_run_only": false,
+  "continue_on_error": true,
+  "rebuild_trace_dataset": true,
+  "prompt_contract_file": "configs/real_litsearch_agent_prompt_contract.md",
+  "extra_instruction": "This is a real-data collection run for WorkflowIR research. Preserve query failures, zero-result queries, over-broad queries, API failures, blocked states, retries, and any recovery decisions in SUMMARY.md. Do not hide mistakes; they are the dataset.",
+  "trials": [
+    {
+      "name": "workflowir_tool_contracts",
+      "topic": "typed tool contracts for LLM agents, including schemas, preconditions, effects, workflow IR, static validation, and tool-call failure prevention"
+    },
+    {
+      "name": "agent_error_recovery_attribution",
+      "topic": "LLM agent error recovery and failure attribution in multi-tool workflows, including tool failure localization, counterexample-guided repair, retry policies, and trace diagnostics"
+    },
+    {
+      "name": "academic_search_agent_failures",
+      "topic": "AI agents for academic literature search, citation verification, evidence grounding, search query planning, recall failures, and hallucinated references"
+    },
+    {
+      "name": "workflow_planning_benchmarks",
+      "topic": "benchmarks for tool-using LLM agents that evaluate DAG planning, executable workflows, API-tool selection, dependency edges, and exact-match workflow plans"
+    },
+    {
+      "name": "tool_use_runtime_observability",
+      "topic": "observability, telemetry, tracing, monitoring, and debugging for LLM tool-use runtimes and agent workflow execution"
+    }
+  ]
+}

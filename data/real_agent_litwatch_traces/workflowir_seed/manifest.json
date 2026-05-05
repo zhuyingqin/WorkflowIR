@@ -1,0 +1,40 @@
+{
+  "dataset_id": "real_agent_litwatch_traces_v1",
+  "dataset_version": "0.1.0",
+  "source": "existing ARIS/Codex lit-watch run artifacts",
+  "runs_dir": "lit-watch/real-agent-trials",
+  "out_dir": "data/real_agent_litwatch_traces/workflowir_seed",
+  "counts": {
+    "runs": 12,
+    "events": 82,
+    "anomalies": 40,
+    "status": {
+      "blocked": 5,
+      "completed": 2,
+      "timeout": 5
+    },
+    "anomaly_labels": {
+      "agent.missing_query_plan": 5,
+      "agent.missing_summary": 4,
+      "agent.query_count_outside_protocol": 2,
+      "retrieval.query_too_broad": 13,
+      "retrieval.zero_result_query": 1,
+      "run.blocked_or_incomplete": 5,
+      "run.timeout": 5,
+      "tool.openalex_export_missing": 5
+    }
+  },
+  "files": {
+    "run_traces": "run_traces.jsonl",
+    "tool_events": "tool_events.jsonl",
+    "anomalies": "anomalies.jsonl",
+    "schema": "schema.json",
+    "readme": "README.md"
+  },
+  "notes": [
+    "This dataset is mined from real agent-generated artifacts, not synthetic task templates.",
+    "When a batch manifest is provided, runner-level statuses such as timeout are preserved separately from artifact-derived statuses.",
+    "It is run-level and artifact-level; finer per-tool LLM traces require instrumenting the agent runtime.",
+    "Automatic anomaly labels are weak labels intended for triage, not final human-verified ground truth."
+  ]
+}

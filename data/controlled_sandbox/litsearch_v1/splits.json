@@ -1,0 +1,38 @@
+{
+  "train": [
+    "CLS-LIT-002",
+    "CLS-LIT-003",
+    "CLS-LIT-005",
+    "CLS-LIT-009",
+    "CLS-LIT-013",
+    "CLS-LIT-014",
+    "CLS-LIT-016",
+    "CLS-LIT-019",
+    "CLS-LIT-022",
+    "CLS-LIT-024",
+    "CLS-LIT-026",
+    "CLS-LIT-029"
+  ],
+  "dev": [
+    "CLS-LIT-001",
+    "CLS-LIT-007",
+    "CLS-LIT-010",
+    "CLS-LIT-015",
+    "CLS-LIT-018",
+    "CLS-LIT-021",
+    "CLS-LIT-027"
+  ],
+  "test": [
+    "CLS-LIT-004",
+    "CLS-LIT-006",
+    "CLS-LIT-008",
+    "CLS-LIT-011",
+    "CLS-LIT-012",
+    "CLS-LIT-017",
+    "CLS-LIT-020",
+    "CLS-LIT-023",
+    "CLS-LIT-025",
+    "CLS-LIT-028",
+    "CLS-LIT-030"
+  ]
+}

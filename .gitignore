@@ -10,6 +10,15 @@ target/
 target/
 dist/
 
+# Literature-watch outputs
+lit-watch/
+data/openalex/
+data/aaai2026_metadata/
+data/aaai2026_papers/
+awesome-aaai-2026-papers/
+data/paper_retrieval_db/*.sqlite
+*.sqlite
+
 # Tool caches
 .clawd-*
 .omc/

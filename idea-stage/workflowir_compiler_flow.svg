@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="940" viewBox="0 0 1600 940" role="img" aria-labelledby="title desc">
+  <title id="title">WorkflowIR Compiler Pipeline</title>
+  <desc id="desc">A flowchart showing user task to LLM planner, typed WorkflowIR, compiler checks, executor, counterexample trace, and local repair loop.</desc>
+  <defs>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#142033" flood-opacity="0.16"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2e4057"/>
+    </marker>
+    <marker id="arrowTeal" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0f766e"/>
+    </marker>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f8fbfd"/>
+      <stop offset="55%" stop-color="#eef4f8"/>
+      <stop offset="100%" stop-color="#f7f8fb"/>
+    </linearGradient>
+    <style>
+      .title { font: 800 46px Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #172033; }
+      .subtitle { font: 500 22px Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #5c6878; }
+      .stage { font: 800 24px Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #18212f; }
+      .body { font: 500 18px Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #536171; }
+      .small { font: 700 15px Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #536171; }
+      .chip { font: 800 14px Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #ffffff; }
+      .box { fill: #ffffff; stroke: #d9e0e8; stroke-width: 2; rx: 16; filter: url(#shadow); }
+      .softBox { fill: #f7fafc; stroke: #d9e0e8; stroke-width: 2; rx: 14; }
+      .line { fill: none; stroke: #2e4057; stroke-width: 4; marker-end: url(#arrow); }
+      .loop { fill: none; stroke: #0f766e; stroke-width: 4; marker-end: url(#arrowTeal); stroke-dasharray: 10 8; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="940" fill="url(#bg)"/>
+  <text x="80" y="78" class="title">WorkflowIR Compiler Pipeline</text>
+  <text x="80" y="118" class="subtitle">把 LLM 生成的工具计划，从“未验证的图”变成“可检查、可优化、可修复的程序”。</text>
+
+  <!-- Top pipeline -->
+  <rect x="80" y="170" width="250" height="150" class="box"/>
+  <rect x="104" y="194" width="84" height="28" rx="14" fill="#2867b2"/>
+  <text x="123" y="214" class="chip">INPUT</text>
+  <text x="104" y="256" class="stage">User Task</text>
+  <text x="104" y="288" class="body">自然语言任务</text>
+  <text x="104" y="314" class="small">目标 / 约束 / 偏好</text>
+
+  <rect x="430" y="170" width="250" height="150" class="box"/>
+  <rect x="454" y="194" width="104" height="28" rx="14" fill="#0f766e"/>
+  <text x="473" y="214" class="chip">PLANNER</text>
+  <text x="454" y="256" class="stage">LLM Planner</text>
+  <text x="454" y="288" class="body">生成结构化计划</text>
+  <text x="454" y="314" class="small">nodes / edges / arguments</text>
+
+  <rect x="780" y="170" width="300" height="150" class="box"/>
+  <rect x="804" y="194" width="88" height="28" rx="14" fill="#2f7d4e"/>
+  <text x="824" y="214" class="chip">IR</text>
+  <text x="804" y="256" class="stage">Typed WorkflowIR</text>
+  <text x="804" y="288" class="body">工具节点带契约</text>
+  <text x="804" y="314" class="small">type / schema / cost / risk</text>
+
+  <rect x="1180" y="170" width="330" height="150" class="box"/>
+  <rect x="1204" y="194" width="98" height="28" rx="14" fill="#6a4caf"/>
+  <text x="1223" y="214" class="chip">OUTPUT</text>
+  <text x="1204" y="256" class="stage">Optimized Workflow</text>
+  <text x="1204" y="288" class="body">准备执行的计划</text>
+  <text x="1204" y="314" class="small">validated / scheduled / patched</text>
+
+  <path d="M 330 245 L 420 245" class="line"/>
+  <path d="M 680 245 L 770 245" class="line"/>
+  <path d="M 1080 245 L 1170 245" class="line"/>
+
+  <!-- Compiler zone -->
+  <rect x="80" y="390" width="1430" height="250" rx="22" fill="#ffffff" stroke="#d9e0e8" stroke-width="2" filter="url(#shadow)"/>
+  <text x="112" y="435" class="stage">Compile-time Checks</text>
+  <text x="112" y="466" class="body">确定性检查先挡住可预见错误，再把优化后的 WorkflowIR 交给 executor。</text>
+
+  <rect x="112" y="500" width="205" height="92" class="softBox"/>
+  <text x="135" y="536" class="stage" font-size="21">Graph Check</text>
+  <text x="135" y="565" class="small">无环 / 可达 / 单入口出口</text>
+
+  <rect x="340" y="500" width="205" height="92" class="softBox"/>
+  <text x="363" y="536" class="stage" font-size="21">Schema Check</text>
+  <text x="363" y="565" class="small">required arguments</text>
+
+  <rect x="568" y="500" width="205" height="92" class="softBox"/>
+  <text x="591" y="536" class="stage" font-size="21">Type &amp; Dataflow</text>
+  <text x="591" y="565" class="small">输出能否喂给下游</text>
+
+  <rect x="796" y="500" width="205" height="92" class="softBox"/>
+  <text x="819" y="536" class="stage" font-size="21">Precondition</text>
+  <text x="819" y="565" class="small">日期 / 权限 / 状态</text>
+
+  <rect x="1024" y="500" width="205" height="92" class="softBox"/>
+  <text x="1047" y="536" class="stage" font-size="21">Cost &amp; Safety</text>
+  <text x="1047" y="565" class="small">预算 / latency / risk</text>
+
+  <rect x="1252" y="500" width="205" height="92" class="softBox"/>
+  <text x="1275" y="536" class="stage" font-size="21">Optimization</text>
+  <text x="1275" y="565" class="small">删死节点 / 并行 / 缓存</text>
+
+  <path d="M 317 546 L 330 546" class="line"/>
+  <path d="M 545 546 L 558 546" class="line"/>
+  <path d="M 773 546 L 786 546" class="line"/>
+  <path d="M 1001 546 L 1014 546" class="line"/>
+  <path d="M 1229 546 L 1242 546" class="line"/>
+
+  <!-- Runtime zone -->
+  <rect x="180" y="720" width="270" height="130" class="box"/>
+  <rect x="204" y="744" width="96" height="28" rx="14" fill="#a96500"/>
+  <text x="222" y="764" class="chip">RUNTIME</text>
+  <text x="204" y="806" class="stage">Executor</text>
+  <text x="204" y="837" class="body">执行工具调用并收集 trace</text>
+
+  <rect x="650" y="720" width="300" height="130" class="box"/>
+  <rect x="674" y="744" width="142" height="28" rx="14" fill="#b43b3b"/>
+  <text x="692" y="764" class="chip">COUNTEREXAMPLE</text>
+  <text x="674" y="806" class="stage">Failure Trace</text>
+  <text x="674" y="837" class="body">缺参 / 类型错 / 工具失败</text>
+
+  <rect x="1150" y="720" width="280" height="130" class="box"/>
+  <rect x="1174" y="744" width="84" height="28" rx="14" fill="#0f766e"/>
+  <text x="1192" y="764" class="chip">REPAIR</text>
+  <text x="1174" y="806" class="stage">Minimal Patch</text>
+  <text x="1174" y="837" class="body">局部修复节点 / 边 / 参数</text>
+
+  <path d="M 315 640 L 315 710" class="line"/>
+  <path d="M 450 785 L 640 785" class="line"/>
+  <path d="M 950 785 L 1140 785" class="line"/>
+  <path d="M 1290 720 C 1290 670 930 690 930 330" class="loop"/>
+
+  <text x="1010" y="690" class="small" fill="#0f766e">patch back to WorkflowIR</text>
+
+  <!-- Bottom labels -->
+  <rect x="80" y="884" width="1430" height="1" fill="#d9e0e8"/>
+  <text x="80" y="914" class="small">Core idea: plan generation is only the front-end; reliability comes from typed contracts, compiler checks, and counterexample-guided repair.</text>
+</svg>

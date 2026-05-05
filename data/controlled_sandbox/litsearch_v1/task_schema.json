@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aris.local/schemas/controlled_sandbox_litsearch_task_v1.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "dataset_id",
+    "dataset_version",
+    "task_id",
+    "split",
+    "level",
+    "title",
+    "category",
+    "user_prompt",
+    "available_tools",
+    "initial_state",
+    "success_criteria",
+    "oracle",
+    "expected_trace",
+    "injections"
+  ],
+  "properties": {
+    "dataset_id": {
+      "const": "controlled_sandbox_litsearch_v1"
+    },
+    "dataset_version": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "split": {
+      "enum": [
+        "train",
+        "dev",
+        "test"
+      ]
+    },
+    "level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3
+    },
+    "title": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "user_prompt": {
+      "type": "string"
+    },
+    "available_tools": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "initial_state": {
+      "type": "object"
+    },
+    "success_criteria": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "oracle": {
+      "type": "object",
+      "required": [
+        "must_include_paper_ids",
+        "must_exclude_paper_ids",
+        "required_answer_facets",
+        "ground_truth_attribution_labels"
+      ]
+    },
+    "expected_trace": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "injections": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  }
+}

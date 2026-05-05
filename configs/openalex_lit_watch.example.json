@@ -1,0 +1,15 @@
+{
+  "project": "aris-openalex-literature-watch",
+  "topic": null,
+  "output_dir": "lit-watch/runs",
+  "wiki_dir": "research-wiki",
+  "openalex_skill_dir": "crates/runtime/assets/skills/openalex-search",
+  "aris_bin": null,
+  "model": null,
+  "permission_mode": "danger-full-access",
+  "lookback_days": 30,
+  "max_results_per_query": 300,
+  "dry_run_only": false,
+  "allowed_tools": "LlmReview,Skill,read,write,edit,glob,grep,bash",
+  "extra_instruction": "The reviewer decides the next research direction. The executor should follow the reviewer recommendation, build OpenAlex query expressions from it, and avoid repeating topics already covered in recent research-wiki/log.md entries."
+}

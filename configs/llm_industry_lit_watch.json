@@ -1,0 +1,16 @@
+{
+  "project": "llm-industrial-applications-survey",
+  "topic": "survey of large language model applications in industry, including self-evolution, autonomous improvement, industrial agent workflows, what problems LLMs solve in industrial settings, deployment constraints, evaluation, safety, reliability, and human-in-the-loop operations",
+  "output_dir": "lit-watch/runs",
+  "wiki_dir": "research-wiki",
+  "openalex_skill_dir": "crates/runtime/assets/skills/openalex-search",
+  "aris_bin": null,
+  "model": "MiniMax-M2.7",
+  "permission_mode": "danger-full-access",
+  "lookback_days": 365,
+  "max_results_per_query": 200,
+  "dry_run_only": false,
+  "allowed_tools": "Skill,read,write,edit,glob,grep,bash",
+  "reviewer_direction_file": "lit-watch/codex_reviewer_direction.md",
+  "extra_instruction": "This recurring survey is about large language models applied to industry. Codex chooses the missing survey angle before each search and writes it to reviewer_direction_file; ARIS should not call LlmReview in this configuration. The executor must use explicit OpenAlex query-plan search expressions and organize results by problem solved, industrial domain, LLM capability, evidence type, limitations, and survey relevance. Avoid re-searching directions already covered in recent research-wiki logs unless there is a clear reason."
+}

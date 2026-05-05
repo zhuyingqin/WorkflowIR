@@ -1,6 +1,40 @@
 use std::env;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+
+fn is_embeddable_resource(path: &Path, skill_md: &Path) -> bool {
+    if !path.is_file() {
+        return false;
+    }
+    let Some(name) = path.file_name().and_then(|name| name.to_str()) else {
+        return false;
+    };
+    if path == skill_md {
+        return false;
+    }
+    name.ends_with(".py") || name.ends_with(".sh") || name.ends_with(".md")
+}
+
+fn collect_resource_files(root: &Path, skill_md: &Path, output: &mut Vec<PathBuf>) {
+    let Ok(entries) = fs::read_dir(root) else {
+        return;
+    };
+    for entry in entries.filter_map(Result::ok) {
+        let path = entry.path();
+        if path.is_dir() {
+            collect_resource_files(&path, skill_md, output);
+        } else if is_embeddable_resource(&path, skill_md) {
+            output.push(path);
+        }
+    }
+}
+
+fn path_for_include(path: &Path) -> String {
+    path.components()
+        .map(|component| component.as_os_str().to_string_lossy())
+        .collect::<Vec<_>>()
+        .join("/")
+}
 
 fn main() {
     let out_dir = env::var("OUT_DIR").unwrap();
@@ -32,33 +66,41 @@ fn main() {
                 fs::copy(&skill_md, &dest).expect("copy skill file");
                 skill_names.push(name.clone());
 
-                // Also embed helper files (.py, .sh, .md) in the same directory
-                if let Ok(files) = fs::read_dir(entry.path()) {
-                    for file in files.filter_map(Result::ok) {
-                        let fname = file.file_name().to_string_lossy().to_string();
-                        let is_helper = fname.ends_with(".py") || fname.ends_with(".sh");
-                        let is_extra_md = fname.ends_with(".md") && fname != "SKILL.md";
-                        if (is_helper || is_extra_md) && file.file_type().map_or(false, |t| t.is_file()) {
-                            let out_name = format!("{name}__{fname}");
-                            let dest = skills_out.join(&out_name);
-                            fs::copy(file.path(), &dest).expect("copy helper file");
-                            let key = format!("{name}/{fname}");
-                            resource_entries.push((key, out_name));
-                        }
+                // Also embed helper files (.py, .sh, .md) recursively. This
+                // keeps skill-local scripts/references available after the
+                // bundled skill is extracted at runtime.
+                let mut resources = Vec::new();
+                collect_resource_files(&entry.path(), &skill_md, &mut resources);
+                resources.sort();
+                for file_path in resources {
+                    let rel = file_path
+                        .strip_prefix(entry.path())
+                        .expect("resource below skill dir");
+                    let dest = skills_out.join(&name).join(rel);
+                    if let Some(parent) = dest.parent() {
+                        fs::create_dir_all(parent).expect("create helper resource dir");
                     }
+                    fs::copy(&file_path, &dest).expect("copy helper file");
+                    let rel_str = path_for_include(rel);
+                    let key = format!("{name}/{rel_str}");
+                    let out_name = format!("{name}/{rel_str}");
+                    resource_entries.push((key, out_name));
                 }
             } else {
                 // Directory without SKILL.md — treat as shared-references or similar
-                // Embed all .md files under it
+                // Embed direct .md files under it.
                 let dir_name = entry.file_name().to_string_lossy().to_string();
                 if let Ok(files) = fs::read_dir(entry.path()) {
                     for file in files.filter_map(Result::ok) {
                         let fname = file.file_name().to_string_lossy().to_string();
                         if fname.ends_with(".md") && file.file_type().map_or(false, |t| t.is_file()) {
-                            let out_name = format!("{dir_name}__{fname}");
-                            let dest = skills_out.join(&out_name);
+                            let dest = skills_out.join(&dir_name).join(&fname);
+                            if let Some(parent) = dest.parent() {
+                                fs::create_dir_all(parent).expect("create shared resource dir");
+                            }
                             fs::copy(file.path(), &dest).expect("copy shared file");
                             let key = format!("{dir_name}/{fname}");
+                            let out_name = format!("{dir_name}/{fname}");
                             resource_entries.push((key, out_name));
                         }
                     }

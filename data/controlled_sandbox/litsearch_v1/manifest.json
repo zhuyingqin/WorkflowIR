@@ -1,0 +1,100 @@
+{
+  "dataset_id": "controlled_sandbox_litsearch_v1",
+  "dataset_version": "0.2.0",
+  "dataset_date": "2026-05-04",
+  "description": "Controlled offline literature-search sandbox for multi-tool research agents.",
+  "out_dir": "data/controlled_sandbox/litsearch_v1",
+  "files": {
+    "tools": "tools.json",
+    "corpus": "corpus.jsonl",
+    "tasks": "tasks.jsonl",
+    "task_schema": "task_schema.json",
+    "attribution_taxonomy": "attribution_taxonomy.json",
+    "splits": "splits.json",
+    "evaluation_rubric": "evaluation_rubric.json",
+    "readme": "README.md"
+  },
+  "counts": {
+    "tools": 12,
+    "papers": 20,
+    "tasks": 30,
+    "tasks_with_injection": 28,
+    "tasks_clean": 2,
+    "splits": {
+      "train": 12,
+      "dev": 7,
+      "test": 11
+    }
+  },
+  "html_first_layer_requirements": {
+    "planned_layer": "Controlled Sandbox",
+    "target_tasks": "30-50",
+    "target_tools": "10-20",
+    "tool_contract_fields": [
+      "schema",
+      "precondition",
+      "effect",
+      "failure_mode"
+    ],
+    "metrics": [
+      "invalid_call_rate",
+      "repair_success",
+      "error_localization_accuracy",
+      "cost_reduction"
+    ],
+    "status": "complete"
+  },
+  "coverage": {
+    "tool_task_counts": {
+      "citation_graph": 5,
+      "compare_methods": 8,
+      "export_bibtex": 4,
+      "extract_claims": 5,
+      "fetch_metadata": 30,
+      "filter_papers": 9,
+      "rank_papers": 4,
+      "retrieve_abstract": 23,
+      "save_lit_report": 30,
+      "search_catalog": 30,
+      "synthesize_query": 5,
+      "validate_workflow_ir": 4
+    },
+    "attribution_label_counts": {
+      "agent.precondition.invalid_tool_input": 1,
+      "clean.no_injected_fault": 2,
+      "tool.citation_graph.direction_flip": 1,
+      "tool.citation_graph.missing_edge": 1,
+      "tool.citation_graph.spurious_edge": 1,
+      "tool.compare_methods.hallucinated_dimension": 1,
+      "tool.compare_methods.omitted_limitations": 1,
+      "tool.compare_methods.row_alignment": 1,
+      "tool.export_bibtex.deduplication_loss": 1,
+      "tool.export_bibtex.field_corruption": 1,
+      "tool.extract_claims.missing_limitation": 1,
+      "tool.extract_claims.polarity_flip": 1,
+      "tool.extract_claims.unsupported_claim": 1,
+      "tool.fetch_metadata.stale_metadata": 1,
+      "tool.filter_papers.criterion_inversion": 1,
+      "tool.rank_papers.duplicate_input_not_rejected": 1,
+      "tool.rank_papers.popularity_bias": 1,
+      "tool.rank_papers.score_flip": 1,
+      "tool.retrieve_abstract.abstract_swap": 1,
+      "tool.save_lit_report.partial_write": 1,
+      "tool.search_catalog.duplicate_results": 1,
+      "tool.search_catalog.recall_drop": 1,
+      "tool.search_catalog.source_omission": 1,
+      "tool.synthesize_query.constraint_loss": 1,
+      "tool.synthesize_query.forbidden_term_leak": 1,
+      "tool.synthesize_query.synonym_drift": 1,
+      "tool.validate_workflow_ir.false_negative": 1,
+      "tool.validate_workflow_ir.false_positive": 1,
+      "tool.validate_workflow_ir.mislocalized_error": 1
+    }
+  },
+  "design_invariants": [
+    "each tool declares input_schema, output_schema, preconditions, effects, and failure_modes",
+    "each injected task has a single primary ground-truth attribution label",
+    "all oracle paper ids refer to the synthetic corpus unless intentionally invalid for precondition repair",
+    "tool observations are meant to be enough for recovery without internet access"
+  ]
+}

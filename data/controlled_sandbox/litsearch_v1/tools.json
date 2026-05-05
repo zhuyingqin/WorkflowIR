@@ -1,0 +1,1027 @@
+[
+  {
+    "tool_id": "search_catalog",
+    "description": "Search the offline scholarly catalog by query text and structured filters.",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "query",
+        "filters",
+        "top_k"
+      ],
+      "properties": {
+        "query": {
+          "type": "string",
+          "minLength": 1
+        },
+        "filters": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "year_from": {
+              "type": "integer",
+              "minimum": 2020
+            },
+            "year_to": {
+              "type": "integer",
+              "maximum": 2026
+            },
+            "venues": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "must_have_tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "exclude_tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "sources": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "conference",
+                  "journal",
+                  "workshop",
+                  "arxiv"
+                ]
+              }
+            }
+          }
+        },
+        "top_k": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        }
+      }
+    },
+    "output_schema": {
+      "type": "object",
+      "required": [
+        "paper_ids",
+        "scores",
+        "diagnostics"
+      ],
+      "properties": {
+        "paper_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "scores": {
+          "type": "object"
+        },
+        "diagnostics": {
+          "type": "object"
+        }
+      }
+    },
+    "preconditions": [
+      "query must be non-empty",
+      "year_from must be less than or equal to year_to when both are provided",
+      "all requested sources must be known catalog source types"
+    ],
+    "effects": [
+      "sets state.last_search_results to the returned paper_ids",
+      "records normalized_query and filter_digest in state.search_history"
+    ],
+    "failure_modes": [
+      {
+        "failure_mode_id": "search_catalog.fm.recall_drop",
+        "description": "A matching paper is missing from results although it satisfies query and filters.",
+        "attribution_label": "tool.search_catalog.recall_drop"
+      },
+      {
+        "failure_mode_id": "search_catalog.fm.filter_leakage",
+        "description": "A paper violating structured filters appears in results.",
+        "attribution_label": "tool.search_catalog.filter_leakage"
+      },
+      {
+        "failure_mode_id": "search_catalog.fm.source_omission",
+        "description": "The tool silently omits one requested source or venue family.",
+        "attribution_label": "tool.search_catalog.source_omission"
+      },
+      {
+        "failure_mode_id": "search_catalog.fm.duplicate_results",
+        "description": "The same paper id appears more than once in ranked results.",
+        "attribution_label": "tool.search_catalog.duplicate_results"
+      },
+      {
+        "failure_mode_id": "search_catalog.fm.query_constraint_drop",
+        "description": "The search backend ignores a semantic constraint from the query text.",
+        "attribution_label": "tool.search_catalog.query_semantics"
+      }
+    ]
+  },
+  {
+    "tool_id": "fetch_metadata",
+    "description": "Return structured metadata for known paper ids.",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paper_ids",
+        "fields"
+      ],
+      "properties": {
+        "paper_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "title",
+              "authors",
+              "year",
+              "venue",
+              "source",
+              "doi",
+              "tags",
+              "datasets",
+              "method_family"
+            ]
+          }
+        }
+      }
+    },
+    "output_schema": {
+      "type": "object",
+      "required": [
+        "records",
+        "missing_ids"
+      ],
+      "properties": {
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "missing_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "preconditions": [
+      "paper_ids must be non-empty",
+      "every paper id should exist in the current corpus unless the task asks for seed repair",
+      "fields must come from the allowed metadata field set"
+    ],
+    "effects": [
+      "sets state.last_metadata_records",
+      "adds missing ids to state.metadata_warnings"
+    ],
+    "failure_modes": [
+      {
+        "failure_mode_id": "fetch_metadata.fm.stale_metadata",
+        "description": "A field reflects an older catalog snapshot.",
+        "attribution_label": "tool.fetch_metadata.stale_metadata"
+      },
+      {
+        "failure_mode_id": "fetch_metadata.fm.id_alias_collision",
+        "description": "Metadata for one id is returned under a different id.",
+        "attribution_label": "tool.fetch_metadata.id_alias_collision"
+      },
+      {
+        "failure_mode_id": "fetch_metadata.fm.partial_response",
+        "description": "A requested field is missing with no missing_ids warning.",
+        "attribution_label": "tool.fetch_metadata.partial_response"
+      },
+      {
+        "failure_mode_id": "fetch_metadata.fm.precondition_rejected",
+        "description": "The tool rejects unknown or empty ids according to its precondition.",
+        "attribution_label": "agent.precondition.invalid_tool_input"
+      }
+    ]
+  },
+  {
+    "tool_id": "retrieve_abstract",
+    "description": "Return abstracts and short evidence snippets for paper ids.",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paper_id",
+        "include_snippets"
+      ],
+      "properties": {
+        "paper_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "include_snippets": {
+          "type": "boolean"
+        }
+      }
+    },
+    "output_schema": {
+      "type": "object",
+      "required": [
+        "paper_id",
+        "abstract",
+        "snippets"
+      ],
+      "properties": {
+        "paper_id": {
+          "type": "string"
+        },
+        "abstract": {
+          "type": "string"
+        },
+        "snippets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "preconditions": [
+      "paper_id must exist in the corpus",
+      "metadata should usually be fetched before abstract-level reasoning"
+    ],
+    "effects": [
+      "sets state.last_abstract",
+      "adds paper_id to state.abstracts_seen"
+    ],
+    "failure_modes": [
+      {
+        "failure_mode_id": "retrieve_abstract.fm.abstract_swap",
+        "description": "The abstract text belongs to another paper id.",
+        "attribution_label": "tool.retrieve_abstract.abstract_swap"
+      },
+      {
+        "failure_mode_id": "retrieve_abstract.fm.truncated_abstract",
+        "description": "The abstract is cut before its evidence-bearing clauses.",
+        "attribution_label": "tool.retrieve_abstract.truncated_abstract"
+      },
+      {
+        "failure_mode_id": "retrieve_abstract.fm.unavailable_fulltext",
+        "description": "The tool reports that abstract/fulltext retrieval is unavailable.",
+        "attribution_label": "tool.retrieve_abstract.unavailable"
+      }
+    ]
+  },
+  {
+    "tool_id": "filter_papers",
+    "description": "Apply explicit inclusion and exclusion criteria to a candidate paper set.",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paper_ids",
+        "criteria"
+      ],
+      "properties": {
+        "paper_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "criteria": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "include_tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "exclude_tags": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "year_from": {
+              "type": "integer"
+            },
+            "year_to": {
+              "type": "integer"
+            },
+            "min_evidence_score": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "output_schema": {
+      "type": "object",
+      "required": [
+        "accepted_ids",
+        "rejected"
+      ],
+      "properties": {
+        "accepted_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rejected": {
+          "type": "object"
+        }
+      }
+    },
+    "preconditions": [
+      "paper_ids should come from search_catalog, citation_graph, or a validated user seed",
+      "criteria must encode at least one include, exclude, or year constraint"
+    ],
+    "effects": [
+      "sets state.last_filtered_results",
+      "records accepted and rejected ids with reasons"
+    ],
+    "failure_modes": [
+      {
+        "failure_mode_id": "filter_papers.fm.criterion_inversion",
+        "description": "The tool treats exclude criteria as include criteria or the reverse.",
+        "attribution_label": "tool.filter_papers.criterion_inversion"
+      },
+      {
+        "failure_mode_id": "filter_papers.fm.tag_normalization_error",
+        "description": "Equivalent tag variants are not normalized.",
+        "attribution_label": "tool.filter_papers.tag_normalization"
+      },
+      {
+        "failure_mode_id": "filter_papers.fm.off_by_one_year",
+        "description": "Boundary-year papers are incorrectly included or excluded.",
+        "attribution_label": "tool.filter_papers.year_boundary"
+      }
+    ]
+  },
+  {
+    "tool_id": "citation_graph",
+    "description": "Expand a seed set through synthetic citation edges.",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "seed_ids",
+        "direction",
+        "depth"
+      ],
+      "properties": {
+        "seed_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "direction": {
+          "enum": [
+            "references",
+            "cited_by",
+            "both"
+          ]
+        },
+        "depth": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2
+        }
+      }
+    },
+    "output_schema": {
+      "type": "object",
+      "required": [
+        "nodes",
+        "edges"
+      ],
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "preconditions": [
+      "seed_ids must exist in the corpus",
+      "direction must be one of references, cited_by, or both"
+    ],
+    "effects": [
+      "sets state.last_citation_graph",
+      "records graph expansion parameters"
+    ],
+    "failure_modes": [
+      {
+        "failure_mode_id": "citation_graph.fm.spurious_edge",
+        "description": "A non-existent citation edge is returned.",
+        "attribution_label": "tool.citation_graph.spurious_edge"
+      },
+      {
+        "failure_mode_id": "citation_graph.fm.missing_edge",
+        "description": "A real citation edge is omitted.",
+        "attribution_label": "tool.citation_graph.missing_edge"
+      },
+      {
+        "failure_mode_id": "citation_graph.fm.direction_flip",
+        "description": "References and cited_by directions are swapped.",
+        "attribution_label": "tool.citation_graph.direction_flip"
+      }
+    ]
+  },
+  {
+    "tool_id": "compare_methods",
+    "description": "Create a structured comparison table over selected papers.",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paper_ids",
+        "dimensions"
+      ],
+      "properties": {
+        "paper_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2
+        },
+        "dimensions": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "artifact_type",
+              "tool_contracts",
+              "preconditions",
+              "effects",
+              "failure_modes",
+              "metrics",
+              "limitations",
+              "recovery_strategy"
+            ]
+          }
+        }
+      }
+    },
+    "output_schema": {
+      "type": "object",
+      "required": [
+        "columns",
+        "rows"
+      ],
+      "properties": {
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "preconditions": [
+      "paper_ids must be known",
+      "at least two papers are required",
+      "dimensions must be supported comparison dimensions"
+    ],
+    "effects": [
+      "sets state.last_comparison_table",
+      "marks comparison dimensions as inspected"
+    ],
+    "failure_modes": [
+      {
+        "failure_mode_id": "compare_methods.fm.hallucinated_dimension",
+        "description": "The table includes a dimension not requested or unsupported by evidence.",
+        "attribution_label": "tool.compare_methods.hallucinated_dimension"
+      },
+      {
+        "failure_mode_id": "compare_methods.fm.misaligned_rows",
+        "description": "Cells from one paper are shifted into another paper row.",
+        "attribution_label": "tool.compare_methods.row_alignment"
+      },
+      {
+        "failure_mode_id": "compare_methods.fm.missing_negative_evidence",
+        "description": "Known limitations are omitted from the comparison.",
+        "attribution_label": "tool.compare_methods.omitted_limitations"
+      }
+    ]
+  },
+  {
+    "tool_id": "export_bibtex",
+    "description": "Export selected papers to BibTeX-like references.",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paper_ids",
+        "deduplicate"
+      ],
+      "properties": {
+        "paper_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "deduplicate": {
+          "type": "boolean"
+        }
+      }
+    },
+    "output_schema": {
+      "type": "object",
+      "required": [
+        "bibtex",
+        "warnings"
+      ],
+      "properties": {
+        "bibtex": {
+          "type": "string"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "preconditions": [
+      "paper_ids must be known",
+      "metadata must include title, authors, year, venue, and doi for stable export"
+    ],
+    "effects": [
+      "sets state.last_bibtex_export",
+      "records exported ids and warnings"
+    ],
+    "failure_modes": [
+      {
+        "failure_mode_id": "export_bibtex.fm.field_corruption",
+        "description": "One bibliographic field differs from source metadata.",
+        "attribution_label": "tool.export_bibtex.field_corruption"
+      },
+      {
+        "failure_mode_id": "export_bibtex.fm.deduplication_loss",
+        "description": "Deduplication removes a distinct paper.",
+        "attribution_label": "tool.export_bibtex.deduplication_loss"
+      },
+      {
+        "failure_mode_id": "export_bibtex.fm.format_invalid",
+        "description": "The returned BibTeX is syntactically malformed.",
+        "attribution_label": "tool.export_bibtex.invalid_format"
+      }
+    ]
+  },
+  {
+    "tool_id": "save_lit_report",
+    "description": "Persist a structured literature-search report for evaluation.",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_id",
+        "sections",
+        "cited_paper_ids"
+      ],
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "sections": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "cited_paper_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "output_schema": {
+      "type": "object",
+      "required": [
+        "report_id",
+        "saved_sections",
+        "warnings"
+      ],
+      "properties": {
+        "report_id": {
+          "type": "string"
+        },
+        "saved_sections": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "preconditions": [
+      "task_id must match the active task",
+      "all cited_paper_ids must be known or explicitly marked unresolved",
+      "sections must include the task-required section names"
+    ],
+    "effects": [
+      "sets state.saved_report_id",
+      "records saved_sections for report completeness checking"
+    ],
+    "failure_modes": [
+      {
+        "failure_mode_id": "save_lit_report.fm.partial_write",
+        "description": "The tool saves only a subset of provided sections.",
+        "attribution_label": "tool.save_lit_report.partial_write"
+      },
+      {
+        "failure_mode_id": "save_lit_report.fm.section_drop",
+        "description": "A required section is dropped without warning.",
+        "attribution_label": "tool.save_lit_report.section_drop"
+      },
+      {
+        "failure_mode_id": "save_lit_report.fm.citation_mismatch",
+        "description": "The saved report cites paper ids not present in cited_paper_ids.",
+        "attribution_label": "tool.save_lit_report.citation_mismatch"
+      }
+    ]
+  },
+  {
+    "tool_id": "synthesize_query",
+    "description": "Generate structured query variants from a literature-search goal.",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "goal",
+        "required_terms",
+        "forbidden_terms",
+        "max_variants"
+      ],
+      "properties": {
+        "goal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required_terms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "forbidden_terms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "max_variants": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        }
+      }
+    },
+    "output_schema": {
+      "type": "object",
+      "required": [
+        "queries",
+        "coverage_notes"
+      ],
+      "properties": {
+        "queries": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "coverage_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "preconditions": [
+      "goal must be non-empty",
+      "required_terms should encode every hard user constraint",
+      "forbidden_terms must not appear in generated query strings"
+    ],
+    "effects": [
+      "sets state.last_query_variants",
+      "records covered and uncovered required terms"
+    ],
+    "failure_modes": [
+      {
+        "failure_mode_id": "synthesize_query.fm.constraint_loss",
+        "description": "A generated query drops a hard required term.",
+        "attribution_label": "tool.synthesize_query.constraint_loss"
+      },
+      {
+        "failure_mode_id": "synthesize_query.fm.synonym_drift",
+        "description": "A synonym expansion drifts into an unrelated topic.",
+        "attribution_label": "tool.synthesize_query.synonym_drift"
+      },
+      {
+        "failure_mode_id": "synthesize_query.fm.forbidden_term_leak",
+        "description": "A forbidden term appears in one generated query.",
+        "attribution_label": "tool.synthesize_query.forbidden_term_leak"
+      }
+    ]
+  },
+  {
+    "tool_id": "rank_papers",
+    "description": "Rank candidate papers by relevance, recency, and evidence strength.",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paper_ids",
+        "objective",
+        "weights"
+      ],
+      "properties": {
+        "paper_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "objective": {
+          "type": "string",
+          "minLength": 1
+        },
+        "weights": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "relevance": {
+              "type": "number"
+            },
+            "recency": {
+              "type": "number"
+            },
+            "evidence": {
+              "type": "number"
+            },
+            "diversity": {
+              "type": "number"
+            }
+          }
+        }
+      }
+    },
+    "output_schema": {
+      "type": "object",
+      "required": [
+        "ranked_ids",
+        "score_breakdown"
+      ],
+      "properties": {
+        "ranked_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "score_breakdown": {
+          "type": "object"
+        }
+      }
+    },
+    "preconditions": [
+      "paper_ids must be unique",
+      "weights must include at least one positive value",
+      "paper_ids should have metadata available before ranking"
+    ],
+    "effects": [
+      "sets state.last_ranked_results",
+      "records score_breakdown for ranking audit"
+    ],
+    "failure_modes": [
+      {
+        "failure_mode_id": "rank_papers.fm.score_flip",
+        "description": "The ranked order inverts the stated scoring objective.",
+        "attribution_label": "tool.rank_papers.score_flip"
+      },
+      {
+        "failure_mode_id": "rank_papers.fm.popularity_bias",
+        "description": "A less relevant paper is promoted because of a hidden popularity proxy.",
+        "attribution_label": "tool.rank_papers.popularity_bias"
+      },
+      {
+        "failure_mode_id": "rank_papers.fm.duplicate_input_not_rejected",
+        "description": "The tool accepts duplicate paper ids despite requiring unique candidates.",
+        "attribution_label": "tool.rank_papers.duplicate_input_not_rejected"
+      }
+    ]
+  },
+  {
+    "tool_id": "extract_claims",
+    "description": "Extract evidence-backed claims from abstracts and metadata.",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paper_ids",
+        "claim_types"
+      ],
+      "properties": {
+        "paper_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "claim_types": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "artifact",
+              "method",
+              "metric",
+              "limitation",
+              "failure_mode",
+              "dataset"
+            ]
+          }
+        }
+      }
+    },
+    "output_schema": {
+      "type": "object",
+      "required": [
+        "claims",
+        "unsupported"
+      ],
+      "properties": {
+        "claims": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "unsupported": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "preconditions": [
+      "abstracts should be retrieved before claim extraction",
+      "claim_types must use the supported taxonomy"
+    ],
+    "effects": [
+      "sets state.last_claims",
+      "records unsupported claim candidates"
+    ],
+    "failure_modes": [
+      {
+        "failure_mode_id": "extract_claims.fm.polarity_flip",
+        "description": "A limitation or negative result is extracted as a positive capability.",
+        "attribution_label": "tool.extract_claims.polarity_flip"
+      },
+      {
+        "failure_mode_id": "extract_claims.fm.unsupported_claim",
+        "description": "A claim is emitted without abstract or metadata support.",
+        "attribution_label": "tool.extract_claims.unsupported_claim"
+      },
+      {
+        "failure_mode_id": "extract_claims.fm.missing_limitation",
+        "description": "A limitation present in evidence is omitted.",
+        "attribution_label": "tool.extract_claims.missing_limitation"
+      }
+    ]
+  },
+  {
+    "tool_id": "validate_workflow_ir",
+    "description": "Validate a proposed WorkflowIR plan against tool contracts and task constraints.",
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_id",
+        "workflow",
+        "checks"
+      ],
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "workflow": {
+          "type": "object"
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "schema",
+              "dataflow",
+              "precondition",
+              "effect",
+              "budget",
+              "safety"
+            ]
+          }
+        }
+      }
+    },
+    "output_schema": {
+      "type": "object",
+      "required": [
+        "status",
+        "diagnostics",
+        "blocking_errors"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "ready",
+            "blocked",
+            "warning"
+          ]
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "blocking_errors": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "preconditions": [
+      "workflow nodes must reference available tool ids",
+      "checks must include at least schema or precondition",
+      "task_id must match the active task"
+    ],
+    "effects": [
+      "sets state.last_workflow_diagnostics",
+      "blocks execution when blocking_errors is non-empty"
+    ],
+    "failure_modes": [
+      {
+        "failure_mode_id": "validate_workflow_ir.fm.false_negative",
+        "description": "The validator misses a deterministic schema, dataflow, or precondition error.",
+        "attribution_label": "tool.validate_workflow_ir.false_negative"
+      },
+      {
+        "failure_mode_id": "validate_workflow_ir.fm.false_positive",
+        "description": "The validator blocks a valid workflow.",
+        "attribution_label": "tool.validate_workflow_ir.false_positive"
+      },
+      {
+        "failure_mode_id": "validate_workflow_ir.fm.mislocalized_error",
+        "description": "The diagnostic points to the wrong node or edge.",
+        "attribution_label": "tool.validate_workflow_ir.mislocalized_error"
+      }
+    ]
+  }
+]

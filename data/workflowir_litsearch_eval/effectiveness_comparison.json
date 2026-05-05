@@ -1,0 +1,31 @@
+{
+  "baseline": {
+    "completion_rate": 0.0,
+    "contract_pass_rate": null,
+    "notes": "Baseline manifest does not enforce required output contract; missing-file rates are mined from run traces separately.",
+    "statuses": {
+      "timeout": 5
+    },
+    "timeout_rate": 1.0,
+    "total": 5
+  },
+  "baseline_batch": "lit-watch/trial-batches/20260505T014639Z-workflowir-real-litwatch-seed/batch_manifest.json",
+  "deltas": {
+    "completion_rate": 1.0,
+    "contract_pass_rate": null,
+    "timeout_rate": -1.0
+  },
+  "workflowir": {
+    "completion_rate": 1.0,
+    "contract_pass_rate": 1.0,
+    "full_export_rate": 1.0,
+    "missing_required_files": 0,
+    "statuses": {
+      "completed": 5
+    },
+    "timeout_rate": 0.0,
+    "total": 5,
+    "total_deduped_works": 407
+  },
+  "workflowir_batch": "lit-watch/workflowir-batches/20260505T052451Z-workflowir-controlled-litsearch-seed/batch_manifest.json"
+}

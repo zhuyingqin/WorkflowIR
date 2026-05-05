@@ -26,6 +26,8 @@ Research topic: $ARGUMENTS
 > - `/research-lit "topic" — sources: zotero, local` — only search Zotero + local PDFs
 > - `/research-lit "topic" — sources: zotero` — only search Zotero
 > - `/research-lit "topic" — sources: web` — only search the web (skip all local)
+> - `/research-lit "topic" — sources: openalex` — use reproducible OpenAlex query-plan search only
+> - `/research-lit "topic" — sources: all, openalex` — default sources plus OpenAlex metadata export
 > - `/research-lit "topic" — sources: web, semantic-scholar` — also search Semantic Scholar for published venue papers (IEEE, ACM, etc.)
 > - `/research-lit "topic" — sources: deepxiv` — only search via DeepXiv progressive retrieval
 > - `/research-lit "topic" — sources: all, deepxiv` — use default sources plus DeepXiv
@@ -39,7 +41,7 @@ This skill checks multiple sources **in priority order**. All are optional — i
 ### Source Selection
 
 Parse `$ARGUMENTS` for a `— sources:` directive:
-- **If `— sources:` is specified**: Only search the listed sources (comma-separated). Valid values: `zotero`, `obsidian`, `local`, `web`, `semantic-scholar`, `deepxiv`, `exa`, `all`.
+- **If `— sources:` is specified**: Only search the listed sources (comma-separated). Valid values: `zotero`, `obsidian`, `local`, `web`, `openalex`, `semantic-scholar`, `deepxiv`, `exa`, `all`.
 - **If not specified**: Default to `all` — search every available source in priority order (`semantic-scholar`, `deepxiv`, and `exa` are **excluded** from `all`; they must be explicitly listed).
 
 Examples:
@@ -50,6 +52,8 @@ Examples:
 /research-lit "diffusion models" — sources: zotero, web             → Zotero + web
 /research-lit "diffusion models" — sources: local                   → local PDFs only
 /research-lit "topic" — sources: obsidian, local, web               → skip Zotero
+/research-lit "topic" — sources: openalex                           → OpenAlex query-plan export only
+/research-lit "topic" — sources: all, openalex                      → default sources + OpenAlex export
 /research-lit "topic" — sources: web, semantic-scholar              → web + S2 API (IEEE/ACM venue papers)
 /research-lit "topic" — sources: deepxiv                            → DeepXiv only
 /research-lit "topic" — sources: all, deepxiv                       → default sources + DeepXiv
@@ -66,9 +70,10 @@ Examples:
 | 2 | **Obsidian** (via MCP) | `obsidian` | Try calling any `mcp__obsidian-vault__*` tool — if unavailable, skip | Research notes, paper summaries, tagged references, wikilinks |
 | 3 | **Local PDFs** | `local` | `Glob: papers/**/*.pdf, literature/**/*.pdf` | Raw PDF content (first 3 pages) |
 | 4 | **Web search** | `web` | Always available (WebSearch) | arXiv, Semantic Scholar, Google Scholar |
-| 5 | **Semantic Scholar API** | `semantic-scholar` | `tools/semantic_scholar_fetch.py` exists | Published venue papers (IEEE, ACM, Springer) with structured metadata: citation counts, venue info, TLDR. **Only runs when explicitly requested** via `— sources: semantic-scholar` or `— sources: web, semantic-scholar` |
-| 6 | **DeepXiv CLI** | `deepxiv` | `tools/deepxiv_fetch.py` and installed `deepxiv` CLI | Progressive paper retrieval: search, brief, head, section, trending, web search. **Only runs when explicitly requested** via `— sources: deepxiv` or `— sources: all, deepxiv` |
-| 7 | **Exa Search** | `exa` | `tools/exa_search.py` and installed `exa-py` SDK | AI-powered broad web search with content extraction (highlights, text, summaries). Covers blogs, docs, news, companies, and research papers beyond arXiv/S2. **Only runs when explicitly requested** via `— sources: exa` or `— sources: all, exa` |
+| 5 | **OpenAlex** | `openalex` | Skill `openalex-search` and `openalex-search/scripts/openalex_works_export.py` | Reproducible works search from explicit query-plan JSON, complete cursor-paginated metadata export, and deduplicated CSV/JSONL outputs. **Only runs when explicitly requested** via `— sources: openalex` or `— sources: all, openalex` |
+| 6 | **Semantic Scholar API** | `semantic-scholar` | `tools/semantic_scholar_fetch.py` exists | Published venue papers (IEEE, ACM, Springer) with structured metadata: citation counts, venue info, TLDR. **Only runs when explicitly requested** via `— sources: semantic-scholar` or `— sources: web, semantic-scholar` |
+| 7 | **DeepXiv CLI** | `deepxiv` | `tools/deepxiv_fetch.py` and installed `deepxiv` CLI | Progressive paper retrieval: search, brief, head, section, trending, web search. **Only runs when explicitly requested** via `— sources: deepxiv` or `— sources: all, deepxiv` |
+| 8 | **Exa Search** | `exa` | `tools/exa_search.py` and installed `exa-py` SDK | AI-powered broad web search with content extraction (highlights, text, summaries). Covers blogs, docs, news, companies, and research papers beyond arXiv/S2. **Only runs when explicitly requested** via `— sources: exa` or `— sources: all, exa` |
 
 > **Graceful degradation**: If no MCP servers are configured, the skill works exactly as before (local PDFs + web search). Zotero and Obsidian are pure additions.
 
@@ -177,6 +182,43 @@ If `semantic_scholar_fetch.py` is not found, skip silently.
 - If a paper appears in both: check S2's `venue`/`publicationVenue` — if it has been published in a journal/conference (e.g. IEEE TWC, JSAC), use S2's metadata (venue, citationCount, DOI) as the authoritative version, since the published version supersedes the preprint. Keep the arXiv PDF link for download.
 - If the S2 match has no venue (still just a preprint indexed by S2): keep the arXiv version as-is.
 - S2 results without `externalIds.ArXiv` are **venue-only papers** not on arXiv — these are the unique value of this source.
+
+**OpenAlex search** (only when `openalex` is in sources):
+
+When the user explicitly requests `— sources: openalex` or includes `openalex` in a combined source list, invoke the `openalex-search` skill and use explicit OpenAlex query expressions rather than generic web search.
+
+Workflow:
+1. Create a query-plan JSON with named search expressions, shared date/type/language filters, and query-specific filters when needed.
+2. Prefer transparent query groups: core problem terms, method terms, application terms, and exclusions.
+3. Run `openalex-search/scripts/openalex_works_export.py` with `--dry-run` first and inspect `query_counts.csv`.
+4. Tighten empty or noisy expressions using `title_and_abstract.search`, publication-year/date filters, type filters, or exclusions.
+5. Run the complete export and merge `all_results_deduped.csv` / `all_results_deduped.jsonl` into the literature table.
+
+Example query-plan fragment:
+
+```json
+{
+  "shared": {
+    "filter": "from_publication_date:2024-01-01,to_publication_date:2026-04-27,type:article,language:en",
+    "sort": "relevance_score:desc"
+  },
+  "queries": [
+    {
+      "name": "core_method",
+      "search": "\"physics-informed neural network\" \"operator learning\""
+    },
+    {
+      "name": "title_abstract_precise",
+      "filter": "title_and_abstract.search:physics-informed neural network,title_and_abstract.search:adaptive sampling"
+    }
+  ]
+}
+```
+
+**De-duplication against arXiv, S2, DeepXiv, and local PDFs**:
+- Match DOI first, then OpenAlex ID, arXiv ID in `ids_json`, normalized title, and finally PDF URL.
+- If OpenAlex provides venue/citation metadata for a paper already found through arXiv, keep OpenAlex venue/citation fields and the arXiv/PDF link.
+- Record `openalex` in the source column and keep `matched_queries` so the final search formula is reproducible.
 
 **DeepXiv search** (only when `deepxiv` is in sources):
 

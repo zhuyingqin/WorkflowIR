@@ -1,0 +1,70 @@
+{
+  "batch_name": "workflowir-controlled-litsearch-seed",
+  "output_dir": "lit-watch/workflowir-agent-runs",
+  "lookback_days": 730,
+  "max_results_per_query": 150,
+  "broad_count_threshold": 300,
+  "openalex_timeout_seconds": 180,
+  "trials": [
+    {
+      "name": "workflowir_tool_contracts",
+      "topic": "typed tool contracts for LLM agents, including schemas, preconditions, effects, workflow IR, static validation, and tool-call failure prevention",
+      "anchors": ["typed tool contracts", "LLM agents", "schema validation", "preconditions effects", "workflow IR"],
+      "query_templates": [
+        {"name": "function_calling_schema", "search": "large language model tool use function calling schema validation"},
+        {"name": "agent_tool_failure", "search": "LLM agent tool failure API validation"},
+        {"name": "json_schema_tools", "search": "large language model function calling JSON schema"},
+        {"name": "workflow_tool_planning", "search": "LLM agent workflow planning tool use"},
+        {"name": "tool_use_benchmark_failure", "search": "AI agent tool use benchmark failure"}
+      ]
+    },
+    {
+      "name": "agent_error_recovery_attribution",
+      "topic": "LLM agent error recovery and failure attribution in multi-tool workflows, including tool failure localization, counterexample-guided repair, retry policies, and trace diagnostics",
+      "anchors": ["LLM agent error recovery", "failure attribution", "multi-tool workflows", "tool failure localization", "trace diagnostics"],
+      "query_templates": [
+        {"name": "agent_error_recovery", "search": "LLM agent error recovery tool use"},
+        {"name": "failure_attribution", "search": "LLM agent failure attribution trace diagnosis"},
+        {"name": "tool_failure_localization", "search": "tool failure localization LLM agent"},
+        {"name": "agent_self_repair", "search": "large language model agent self repair retry"},
+        {"name": "multi_tool_workflow_failure", "search": "multi tool workflow agent failure"}
+      ]
+    },
+    {
+      "name": "academic_search_agent_failures",
+      "topic": "AI agents for academic literature search, citation verification, evidence grounding, paper retrieval, and bibliographic tool-use failures",
+      "anchors": ["academic literature search agents", "citation verification", "evidence grounding", "paper retrieval", "bibliographic tool failures"],
+      "query_templates": [
+        {"name": "literature_search_agent", "search": "AI agent academic literature search"},
+        {"name": "citation_verification_llm", "search": "large language model citation verification"},
+        {"name": "evidence_grounding", "search": "LLM evidence grounding citation retrieval"},
+        {"name": "paper_retrieval_agent", "search": "paper retrieval agent scholarly search"},
+        {"name": "bibliographic_tool_failure", "search": "bibliographic tool use failure LLM"}
+      ]
+    },
+    {
+      "name": "workflow_planning_benchmarks",
+      "topic": "benchmarks for tool-using LLM agents that evaluate DAG planning, executable workflows, API-tool selection, dependency edges, and exact-match workflow plans",
+      "anchors": ["tool-using LLM agent benchmarks", "DAG planning", "executable workflows", "API tool selection", "dependency edges"],
+      "query_templates": [
+        {"name": "llm_agent_benchmark", "search": "LLM agent benchmark tool use"},
+        {"name": "tool_calling_evaluation", "search": "tool calling evaluation function calling benchmark"},
+        {"name": "dag_workflow_planning", "search": "LLM agent DAG workflow planning"},
+        {"name": "api_tool_selection", "search": "LLM agent API tool selection"},
+        {"name": "workflow_plan_correctness", "search": "workflow plan correctness LLM agent"}
+      ]
+    },
+    {
+      "name": "tool_use_runtime_observability",
+      "topic": "observability, telemetry, tracing, monitoring, and debugging for LLM tool-use runtimes and agent workflow execution",
+      "anchors": ["LLM tool-use observability", "agent telemetry", "tool tracing", "workflow execution monitoring", "agent debugging"],
+      "query_templates": [
+        {"name": "agent_trace_instrumentation", "search": "LLM agent trace instrumentation tool use"},
+        {"name": "agent_observability", "search": "LLM agent observability monitoring"},
+        {"name": "tool_use_monitoring", "search": "large language model tool use monitoring"},
+        {"name": "agent_debugging", "search": "AI agent debugging visualization trace"},
+        {"name": "workflow_telemetry", "search": "agent workflow telemetry execution tracing"}
+      ]
+    }
+  ]
+}

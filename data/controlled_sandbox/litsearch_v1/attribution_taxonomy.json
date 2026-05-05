@@ -1,0 +1,70 @@
+{
+  "taxonomy_id": "controlled_sandbox_attribution_v1",
+  "root_causes": [
+    {
+      "root_cause": "tool_contract_violation",
+      "definition": "The tool violates its declared schema, precondition behavior, or output contract."
+    },
+    {
+      "root_cause": "tool_effect_fault",
+      "definition": "The tool returns plausible output but corrupts state or fails to realize its declared effect."
+    },
+    {
+      "root_cause": "tool_retrieval_fault",
+      "definition": "The search or retrieval tool misses, leaks, swaps, duplicates, or corrupts scholarly evidence."
+    },
+    {
+      "root_cause": "agent_precondition_violation",
+      "definition": "The agent calls a tool with invalid inputs or wrong call order despite visible preconditions."
+    },
+    {
+      "root_cause": "agent_constraint_loss",
+      "definition": "The agent drops a user constraint while planning, filtering, or writing the final answer."
+    },
+    {
+      "root_cause": "agent_recovery_failure",
+      "definition": "A visible tool fault occurs, but the agent fails to cross-check or recover."
+    }
+  ],
+  "labels": [
+    "clean.no_injected_fault",
+    "tool.search_catalog.recall_drop",
+    "tool.search_catalog.filter_leakage",
+    "tool.search_catalog.source_omission",
+    "tool.search_catalog.duplicate_results",
+    "tool.search_catalog.query_semantics",
+    "tool.fetch_metadata.stale_metadata",
+    "tool.fetch_metadata.id_alias_collision",
+    "tool.fetch_metadata.partial_response",
+    "tool.retrieve_abstract.abstract_swap",
+    "tool.retrieve_abstract.truncated_abstract",
+    "tool.filter_papers.criterion_inversion",
+    "tool.citation_graph.spurious_edge",
+    "tool.citation_graph.missing_edge",
+    "tool.citation_graph.direction_flip",
+    "tool.compare_methods.hallucinated_dimension",
+    "tool.compare_methods.row_alignment",
+    "tool.compare_methods.omitted_limitations",
+    "tool.export_bibtex.field_corruption",
+    "tool.export_bibtex.deduplication_loss",
+    "tool.export_bibtex.invalid_format",
+    "tool.save_lit_report.partial_write",
+    "tool.save_lit_report.section_drop",
+    "tool.save_lit_report.citation_mismatch",
+    "tool.synthesize_query.constraint_loss",
+    "tool.synthesize_query.synonym_drift",
+    "tool.synthesize_query.forbidden_term_leak",
+    "tool.rank_papers.score_flip",
+    "tool.rank_papers.popularity_bias",
+    "tool.rank_papers.duplicate_input_not_rejected",
+    "tool.extract_claims.polarity_flip",
+    "tool.extract_claims.unsupported_claim",
+    "tool.extract_claims.missing_limitation",
+    "tool.validate_workflow_ir.false_negative",
+    "tool.validate_workflow_ir.false_positive",
+    "tool.validate_workflow_ir.mislocalized_error",
+    "agent.precondition.invalid_tool_input",
+    "agent.constraint_loss",
+    "agent.recovery_failure"
+  ]
+}
