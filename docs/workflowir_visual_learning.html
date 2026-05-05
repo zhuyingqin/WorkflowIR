@@ -1,0 +1,1505 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WorkflowIR 可视化学习页</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18212f;
+      --muted: #5c6878;
+      --line: #d9e0e8;
+      --soft: #f5f7fa;
+      --paper: #ffffff;
+      --blue: #2867b2;
+      --teal: #0f766e;
+      --green: #2f7d4e;
+      --red: #b43b3b;
+      --amber: #a96500;
+      --violet: #6a4caf;
+      --shadow: 0 14px 34px rgba(20, 32, 50, 0.10);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, #f8fafc 0%, #eef3f7 38%, #f7f8fb 100%);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+    }
+
+    .side {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 24px 18px;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(14px);
+      overflow: auto;
+    }
+
+    .brand {
+      display: grid;
+      gap: 8px;
+      padding: 0 6px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+      margin-top: 18px;
+    }
+
+    .nav button {
+      border: 0;
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--ink);
+      min-height: 42px;
+      padding: 9px 10px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .nav button:hover {
+      background: #edf3f9;
+    }
+
+    .nav button.active {
+      background: #dfeefa;
+      color: #0d4d84;
+      font-weight: 700;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: currentColor;
+      flex: 0 0 auto;
+    }
+
+    .content {
+      padding: 28px clamp(18px, 3vw, 42px) 56px;
+      overflow: hidden;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
+      gap: 24px;
+      align-items: stretch;
+      min-height: 520px;
+    }
+
+    .headline {
+      padding: 8px 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .eyebrow {
+      color: var(--teal);
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      margin-bottom: 14px;
+    }
+
+    .headline h2 {
+      margin: 0;
+      font-size: clamp(36px, 5vw, 66px);
+      line-height: 0.98;
+      letter-spacing: 0;
+      max-width: 780px;
+    }
+
+    .headline p {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.7;
+      max-width: 720px;
+    }
+
+    .claim-strip {
+      margin-top: 24px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .claim {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.66);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .claim strong {
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .claim span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .num {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #16324f;
+      color: white;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .visual-panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      min-height: 520px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 14px;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+    }
+
+    .panel-head h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .badge {
+      border-radius: 999px;
+      background: #eaf4f2;
+      color: #0d625b;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .flow-canvas {
+      display: grid;
+      align-content: center;
+      gap: 16px;
+      padding: 8px 0;
+    }
+
+    .flow-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .node {
+      border: 1px solid var(--line);
+      border-left-width: 5px;
+      background: #fbfdff;
+      border-radius: var(--radius);
+      padding: 12px;
+      min-height: 112px;
+      position: relative;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+
+    .node:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 22px rgba(20, 32, 50, 0.10);
+    }
+
+    .node h4 {
+      margin: 0 0 6px;
+      font-size: 14px;
+    }
+
+    .node p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .node small {
+      display: inline-block;
+      margin-top: 8px;
+      color: #334155;
+      font-weight: 800;
+      font-size: 11px;
+      background: #eef2f7;
+      border-radius: 999px;
+      padding: 4px 7px;
+    }
+
+    .blue { border-left-color: var(--blue); }
+    .teal { border-left-color: var(--teal); }
+    .green { border-left-color: var(--green); }
+    .amber { border-left-color: var(--amber); }
+    .red { border-left-color: var(--red); }
+    .violet { border-left-color: var(--violet); }
+
+    .connector {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .connector::before,
+    .connector::after {
+      content: "";
+      height: 1px;
+      background: var(--line);
+    }
+
+    .connector span {
+      padding: 0 10px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .legend span {
+      border: 1px solid var(--line);
+      background: #fbfdff;
+      border-radius: 999px;
+      padding: 6px 9px;
+    }
+
+    section {
+      margin-top: 34px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 14px;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+
+    .section-head p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 760px;
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .model-card,
+    .insight,
+    .experiment,
+    .metric-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 8px 22px rgba(20, 32, 50, 0.06);
+    }
+
+    .model-card h3,
+    .insight h3,
+    .experiment h3,
+    .metric-card h3 {
+      margin: 0 0 10px;
+      font-size: 17px;
+    }
+
+    .model-card p,
+    .insight p,
+    .experiment p,
+    .metric-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .problem-list,
+    .check-list {
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .problem-list li,
+    .check-list li {
+      display: grid;
+      grid-template-columns: 18px minmax(0, 1fr);
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .problem-list li::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      margin-top: 5px;
+      border-radius: 50%;
+      background: var(--red);
+    }
+
+    .check-list li::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      margin-top: 5px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    .travel {
+      display: grid;
+      grid-template-columns: 0.82fr 1.18fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .prompt-box {
+      background: #172033;
+      color: #eef6ff;
+      border-radius: var(--radius);
+      padding: 18px;
+      min-height: 100%;
+      display: grid;
+      align-content: center;
+      gap: 14px;
+    }
+
+    .prompt-box h3 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .prompt-box p {
+      margin: 0;
+      color: #cbd8e6;
+      line-height: 1.7;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tabs button {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      border-radius: var(--radius);
+      min-height: 36px;
+      padding: 8px 11px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .tabs button.active {
+      background: #16324f;
+      color: white;
+      border-color: #16324f;
+    }
+
+    .tab-panel {
+      display: none;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      min-height: 376px;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      overflow: auto;
+      color: #253145;
+      font-size: 13px;
+      line-height: 1.55;
+      background: #f5f8fb;
+      border: 1px solid #e4ebf2;
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+
+    .ir-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .ir-node {
+      border: 1px solid var(--line);
+      border-top: 5px solid var(--blue);
+      border-radius: var(--radius);
+      background: #fbfdff;
+      padding: 10px;
+      min-height: 150px;
+    }
+
+    .ir-node h4 {
+      margin: 0 0 6px;
+      font-size: 13px;
+    }
+
+    .ir-node p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .ir-node code {
+      display: block;
+      margin-top: 8px;
+      font-size: 11px;
+      line-height: 1.45;
+      color: #273449;
+      background: #eef3f8;
+      border-radius: 6px;
+      padding: 7px;
+      white-space: normal;
+    }
+
+    .compiler {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .pass {
+      min-height: 112px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--paper);
+      padding: 13px;
+      display: grid;
+      align-content: start;
+      gap: 8px;
+    }
+
+    .pass strong {
+      font-size: 14px;
+    }
+
+    .pass span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .check-workbench {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: 0.96fr 1.08fr 0.96fr;
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .schema-panel,
+    .check-steps,
+    .diagnostic-report {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 8px 22px rgba(20, 32, 50, 0.06);
+    }
+
+    .schema-panel h3,
+    .check-steps h3,
+    .diagnostic-report h3 {
+      margin: 0 0 10px;
+      font-size: 17px;
+    }
+
+    .schema-panel p,
+    .check-steps p,
+    .diagnostic-report p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .mini-code {
+      margin: 0;
+      white-space: pre-wrap;
+      overflow: auto;
+      color: #233047;
+      background: #f4f7fb;
+      border: 1px solid #e1e8f0;
+      border-radius: var(--radius);
+      padding: 12px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .step-list {
+      display: grid;
+      gap: 9px;
+      margin-top: 10px;
+    }
+
+    .step-card {
+      display: grid;
+      grid-template-columns: 26px minmax(0, 1fr);
+      gap: 10px;
+      border: 1px solid #e0e7ef;
+      border-radius: var(--radius);
+      background: #fbfdff;
+      padding: 10px;
+    }
+
+    .step-card b {
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #183653;
+      color: white;
+      font-size: 12px;
+    }
+
+    .step-card strong {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+
+    .step-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .diagnostic-item {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px;
+      margin-top: 9px;
+      background: #fbfdff;
+    }
+
+    .diagnostic-item strong {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+
+    .diagnostic-item span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .status {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      flex: 0 0 auto;
+    }
+
+    .status.warn { background: var(--amber); }
+    .status.err { background: var(--red); }
+    .status.ok { background: var(--green); }
+
+    .rule-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: table;
+      box-shadow: 0 8px 22px rgba(20, 32, 50, 0.06);
+    }
+
+    .rule-table th,
+    .rule-table td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .rule-table th {
+      background: #edf3f9;
+      color: #213147;
+      font-weight: 800;
+    }
+
+    .rule-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .experiments {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .benchmark-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .benchmark-card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 8px 22px rgba(20, 32, 50, 0.06);
+    }
+
+    .benchmark-card h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+    }
+
+    .benchmark-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.62;
+    }
+
+    .benchmark-card ul {
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .benchmark-card li {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr);
+      gap: 8px;
+    }
+
+    .benchmark-card li strong {
+      color: #26364a;
+    }
+
+    .benchmark-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: table;
+      box-shadow: 0 8px 22px rgba(20, 32, 50, 0.06);
+    }
+
+    .benchmark-table th,
+    .benchmark-table td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .benchmark-table th {
+      background: #edf3f9;
+      color: #213147;
+      font-weight: 800;
+    }
+
+    .benchmark-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric-card strong {
+      display: block;
+      font-size: 28px;
+      margin-bottom: 4px;
+      color: #183653;
+    }
+
+    .thesis {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .quote {
+      background: #142133;
+      color: white;
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+
+    .quote h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    .quote p {
+      margin: 0;
+      color: #d7e2ef;
+      line-height: 1.7;
+    }
+
+    .callout {
+      margin-top: 18px;
+      border-left: 5px solid var(--teal);
+      background: #f0f7f5;
+      border-radius: var(--radius);
+      padding: 16px;
+      color: #24433f;
+      line-height: 1.65;
+    }
+
+    .figure-card {
+      margin-top: 18px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: 0 8px 22px rgba(20, 32, 50, 0.06);
+    }
+
+    .figure-card h3 {
+      margin: 0 0 10px;
+      font-size: 17px;
+    }
+
+    .figure-card p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .flowchart-img {
+      width: 100%;
+      display: block;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius);
+      background: #f8fafc;
+    }
+
+    .footer-note {
+      margin-top: 34px;
+      padding: 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 1120px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .side {
+        position: relative;
+        height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .nav {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .hero,
+      .travel,
+      .thesis,
+      .check-workbench {
+        grid-template-columns: 1fr;
+      }
+
+      .ir-grid,
+      .compiler,
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .content {
+        padding: 18px 14px 40px;
+      }
+
+      .nav,
+      .compare,
+      .experiments,
+      .flow-row,
+      .check-workbench,
+      .benchmark-grid,
+      .ir-grid,
+      .compiler,
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .rule-table,
+      .benchmark-table {
+        display: block;
+        overflow-x: auto;
+      }
+
+      .headline h2 {
+        font-size: 38px;
+      }
+
+      .section-head {
+        display: grid;
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <h1>WorkflowIR 学习地图</h1>
+        <p>把 tool-using LLM agent 从 prompt engineering 推向 compiler engineering。</p>
+      </div>
+      <nav class="nav" aria-label="页面导航">
+        <button class="active" data-scroll="#overview"><span class="dot"></span>故事主张</button>
+        <button data-scroll="#compare"><span class="dot"></span>三代对比</button>
+        <button data-scroll="#example"><span class="dot"></span>旅行例子</button>
+        <button data-scroll="#compiler"><span class="dot"></span>编译流程</button>
+        <button data-scroll="#experiment"><span class="dot"></span>实验设计</button>
+        <button data-scroll="#value"><span class="dot"></span>最终卖点</button>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <section id="overview" class="hero" aria-labelledby="main-title">
+        <div class="headline">
+          <div class="eyebrow">Paper Storyline</div>
+          <h2 id="main-title">让 Agent Workflow 进入可编译时代</h2>
+          <p>
+            ReAct 让 LLM 能灵活调用工具，但容易局部短视；DAG planner 提供全局结构，但仍然执行未验证的图。
+            WorkflowIR 的核心是把工具工作流表示成 typed intermediate representation，让计划在执行前被检查、优化，并在执行中被局部修复。
+          </p>
+          <div class="claim-strip">
+            <div class="claim">
+              <div class="num">1</div>
+              <div><strong>ReAct agents</strong><br><span>locally adaptive but globally myopic and expensive.</span></div>
+            </div>
+            <div class="claim">
+              <div class="num">2</div>
+              <div><strong>Planner-based agents</strong><br><span>improve global structure but execute unverified workflow graphs.</span></div>
+            </div>
+            <div class="claim">
+              <div class="num">3</div>
+              <div><strong>WorkflowIR</strong><br><span>represents tool workflows as typed, verifiable, and repairable programs.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="visual-panel" aria-label="WorkflowIR 总览图">
+          <div class="panel-head">
+            <h3>Compiler-Style Agent Architecture</h3>
+            <span class="badge">Typed IR + Validation + Repair</span>
+          </div>
+          <div class="flow-canvas">
+            <div class="flow-row">
+              <div class="node blue"><h4>User Task</h4><p>自然语言任务，包含目标、约束、偏好和隐含需求。</p><small>input</small></div>
+              <div class="node teal"><h4>LLM Planner</h4><p>生成结构化 WorkflowIR，而不是直接输出下一步工具调用。</p><small>generation</small></div>
+              <div class="node green"><h4>WorkflowIR</h4><p>节点带类型、schema、precondition、effect、cost 和 failure mode。</p><small>program</small></div>
+            </div>
+            <div class="connector"><span>compile-time passes</span></div>
+            <div class="flow-row">
+              <div class="node violet"><h4>Static Validator</h4><p>检查类型、数据依赖、前置条件、安全边界和预算。</p><small>verify</small></div>
+              <div class="node amber"><h4>Cost Optimizer</h4><p>删除死节点、合并重复调用、并行化、便宜工具优先。</p><small>optimize</small></div>
+              <div class="node red"><h4>Counterexample Repair</h4><p>执行失败后定位最小错误子图，局部 patch，而不是全图重写。</p><small>repair</small></div>
+            </div>
+          </div>
+          <div class="legend">
+            <span>静态验证</span>
+            <span>成本优化</span>
+            <span>局部修复</span>
+            <span>可复用子图</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="compare">
+        <div class="section-head">
+          <h2>三代 Agent 对比</h2>
+          <p>我们的论文不是“再做一个 planner”，而是指出 planner 生成的图也需要像程序一样被验证和修复。</p>
+        </div>
+        <div class="compare">
+          <article class="model-card">
+            <h3>ReAct</h3>
+            <p>每一步根据 observation 决定下一个 action，灵活但缺少全局结构。</p>
+            <ul class="problem-list">
+              <li>容易局部贪心和绕圈。</li>
+              <li>长链任务中错误持续累积。</li>
+              <li>每一步都调用 LLM，成本高。</li>
+            </ul>
+          </article>
+          <article class="model-card">
+            <h3>DAG Planner</h3>
+            <p>先生成全局工具计划，再交给 executor 执行，结构更清晰。</p>
+            <ul class="problem-list">
+              <li>DAG 通常只是“看起来合理”。</li>
+              <li>缺少类型、schema 和前置条件检查。</li>
+              <li>失败后常常整体重试或重规划。</li>
+            </ul>
+          </article>
+          <article class="model-card">
+            <h3>WorkflowIR</h3>
+            <p>把 workflow 表示成可编译程序，并在执行前后持续约束。</p>
+            <ul class="check-list">
+              <li>执行前发现确定性错误。</li>
+              <li>在图层面优化成本和并行度。</li>
+              <li>执行失败后做最小子图修复。</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="example">
+        <div class="section-head">
+          <h2>具体例子</h2>
+          <p>同一个旅行预算任务，在 ReAct、普通 DAG 和 WorkflowIR 下会呈现完全不同的可靠性。</p>
+        </div>
+        <div class="travel">
+          <div class="prompt-box">
+            <h3>用户任务</h3>
+            <p>帮我找下个月去东京开会的机票、酒店，并生成预算表。</p>
+            <p>关键隐含约束：出发城市、会议地址、日期范围、币种、预算表字段、API 可用性。</p>
+          </div>
+          <div>
+            <div class="tabs" role="tablist" aria-label="例子视图">
+              <button class="active" data-tab="react">ReAct</button>
+              <button data-tab="dag">普通 DAG</button>
+              <button data-tab="ir">WorkflowIR</button>
+              <button data-tab="checks">编译器检查</button>
+            </div>
+
+            <div class="tab-panel active" id="tab-react">
+              <pre>Thought: 先搜索机票。
+Action: search_flight(destination="Tokyo")
+Observation: missing origin and date
+
+Thought: 用户说下个月，先猜一个日期范围。
+Action: search_flight(destination="Tokyo", date="next month")
+Observation: multiple ambiguous ranges
+
+Thought: 先查酒店。
+Action: search_hotel(city="Tokyo")
+Observation: too many results
+
+风险：中途忘记会议地址，重复查酒店，预算表字段不一致。</pre>
+            </div>
+
+            <div class="tab-panel" id="tab-dag">
+              <pre>search_flight
+  -> search_hotel
+  -> calculate_budget
+  -> write_report
+
+问题：
+- search_flight 是否需要出发城市？
+- search_hotel 是否需要会议地址？
+- calculate_budget 是否需要统一币种？
+- write_report 是否需要固定表格 schema？
+- search_flight 和 search_hotel 是否其实可以并行？</pre>
+            </div>
+
+            <div class="tab-panel" id="tab-ir">
+              <div class="ir-grid">
+                <div class="ir-node">
+                  <h4>A. infer_travel_constraints</h4>
+                  <p>抽取出发地、日期范围、会议地点和预算偏好。</p>
+                  <code>output: TravelSpec</code>
+                </div>
+                <div class="ir-node" style="border-top-color: var(--teal)">
+                  <h4>B. search_flights</h4>
+                  <p>基于 TravelSpec 搜索航班。</p>
+                  <code>input: TravelSpec<br>output: list[FlightOption]</code>
+                </div>
+                <div class="ir-node" style="border-top-color: var(--green)">
+                  <h4>C. search_hotels</h4>
+                  <p>基于地点和日期搜索酒店。</p>
+                  <code>input: TravelSpec, Location<br>output: list[HotelOption]</code>
+                </div>
+                <div class="ir-node" style="border-top-color: var(--amber)">
+                  <h4>D. normalize_currency</h4>
+                  <p>统一机票和酒店价格币种。</p>
+                  <code>input: FlightOption[], HotelOption[]<br>output: BudgetTable</code>
+                </div>
+                <div class="ir-node" style="border-top-color: var(--violet)">
+                  <h4>E. write_report</h4>
+                  <p>生成预算表和 Markdown 报告。</p>
+                  <code>input: BudgetTable<br>output: MarkdownReport</code>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-panel" id="tab-checks">
+              <pre>Type Check:
+  B.input == TravelSpec
+  C.input includes Location
+  D.input prices have currency fields
+
+Dataflow Check:
+  A -> B, A -> C
+  B,C -> D
+  D -> E
+
+Cost Optimization:
+  B and C can run in parallel
+  cache duplicated city/date queries
+
+Repair Example:
+  hotel API fails: missing meeting_address
+  patch: add node infer_meeting_location
+  add edge infer_meeting_location -> search_hotels</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="compiler">
+        <div class="section-head">
+          <h2>Compiler Passes</h2>
+          <p>WorkflowIR 的论文贡献可以被组织成一组明确的编译器式 pass，每个 pass 都对应可测量的错误类型。</p>
+        </div>
+        <div class="compiler">
+          <div class="pass"><strong>Type Check</strong><span>检查工具输入输出类型是否能连接，减少 type mismatch。</span></div>
+          <div class="pass"><strong>Dataflow Check</strong><span>确认每个参数都有上游来源，减少 missing dependency。</span></div>
+          <div class="pass"><strong>Precondition Check</strong><span>检查登录、日期、地点、权限等前置条件。</span></div>
+          <div class="pass"><strong>Cost Check</strong><span>预算、token、工具费用和 latency 的约束验证。</span></div>
+          <div class="pass"><strong>Optimization</strong><span>删除无用节点、合并重复调用、识别并行分支。</span></div>
+          <div class="pass"><strong>Repair</strong><span>把执行失败转为 counterexample，并局部 patch 子图。</span></div>
+        </div>
+        <div class="callout">
+          关键论点：我们不是等 agent 失败后写一段 reflection，而是在执行前阻止确定性错误，并在执行中把失败精确映射到 WorkflowIR 的节点、边和参数。
+        </div>
+
+        <div class="figure-card">
+          <h3>WorkflowIR AI 生成流程图</h3>
+          <img class="flowchart-img" src="workflowir_ai_flowchart.png" alt="AI-generated WorkflowIR compiler pipeline flowchart">
+          <p>这张图可以作为视觉学习版主图：展示 User Task、LLM Planner、Typed WorkflowIR、Static Validator、Cost Optimizer、Executor、Failure Trace 和 Counterexample-Guided Repair 的闭环。</p>
+        </div>
+
+        <div class="section-head" style="margin-top: 24px">
+          <h2>如何做编译器检查</h2>
+          <p>实现上需要三个对象：工具契约、WorkflowIR 图、诊断报告。检查器不是再问一次 LLM，而是用确定性规则先过滤明显不可执行的计划。</p>
+        </div>
+
+        <div class="check-workbench">
+          <article class="schema-panel">
+            <h3>1. 给每个工具写 Contract</h3>
+            <p>Contract 是检查器的类型系统。它可以来自 API schema、工具文档，也可以从历史成功/失败轨迹中学习。</p>
+            <pre class="mini-code">ToolContract:
+  name: search_hotels
+  input:
+    city: string
+    check_in: date
+    check_out: date
+    location_hint: string?
+  output:
+    hotels: list[HotelOption]
+  precondition:
+    check_in < check_out
+    city is not empty
+  effects:
+    provides: hotels.price, hotels.currency
+  failure_modes:
+    MissingDate
+    AmbiguousLocation
+    NoAvailability</pre>
+          </article>
+
+          <article class="check-steps">
+            <h3>2. 按顺序跑 Check Passes</h3>
+            <p>每个 pass 输入一张 WorkflowIR 图，输出一组 errors / warnings / optimization hints。</p>
+            <div class="step-list">
+              <div class="step-card"><b>A</b><div><strong>Graph Check</strong><span>确认无环、入口/出口存在、所有节点可达。</span></div></div>
+              <div class="step-card"><b>B</b><div><strong>Schema Check</strong><span>检查每个工具调用是否满足 required arguments。</span></div></div>
+              <div class="step-card"><b>C</b><div><strong>Type/Dataflow Check</strong><span>检查上游输出类型能否喂给下游输入。</span></div></div>
+              <div class="step-card"><b>D</b><div><strong>Precondition Check</strong><span>用已知变量验证日期、权限、登录、预算等条件。</span></div></div>
+              <div class="step-card"><b>E</b><div><strong>Cost/Safety Check</strong><span>估计 token、工具费用、latency 和风险等级。</span></div></div>
+              <div class="step-card"><b>F</b><div><strong>Patch Suggestion</strong><span>把错误定位到节点/边/参数，并生成最小修复建议。</span></div></div>
+            </div>
+          </article>
+
+          <article class="diagnostic-report">
+            <h3>3. 输出可执行诊断报告</h3>
+            <p>报告必须能告诉 executor 或 repair model：哪里错、为什么错、最小怎么改。</p>
+            <div class="diagnostic-item">
+              <strong><i class="status err"></i>MissingInput</strong>
+              <span>Node C `search_hotels` requires `location_hint`, but no upstream node produces it.</span>
+            </div>
+            <div class="diagnostic-item">
+              <strong><i class="status warn"></i>CurrencyMismatch</strong>
+              <span>Node D receives USD flight prices and JPY hotel prices. Insert `normalize_currency` before budget calculation.</span>
+            </div>
+            <div class="diagnostic-item">
+              <strong><i class="status ok"></i>Parallelizable</strong>
+              <span>Node B `search_flights` and Node C `search_hotels` only depend on TravelSpec, so they can run concurrently.</span>
+            </div>
+          </article>
+        </div>
+
+        <table class="rule-table" aria-label="编译器检查规则示例">
+          <thead>
+            <tr>
+              <th>检查规则</th>
+              <th>检测方法</th>
+              <th>发现的问题</th>
+              <th>修复动作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Required input rule</td>
+              <td>对照 tool contract 的 required fields</td>
+              <td>缺少 `origin_city`、`check_in_date` 等参数</td>
+              <td>插入信息抽取节点，或向用户澄清</td>
+            </tr>
+            <tr>
+              <td>Type compatibility rule</td>
+              <td>检查上游 output type 是否能匹配下游 input type</td>
+              <td>`list[HotelOption]` 被直接传给需要 `BudgetTable` 的节点</td>
+              <td>插入 transform / aggregation 节点</td>
+            </tr>
+            <tr>
+              <td>Precondition rule</td>
+              <td>执行符号规则或轻量验证函数</td>
+              <td>`check_in >= check_out`、未登录、权限不足</td>
+              <td>重排节点、补认证步骤、修正日期范围</td>
+            </tr>
+            <tr>
+              <td>Dependency rule</td>
+              <td>做图可达性和数据依赖分析</td>
+              <td>节点依赖不存在、死节点、错误顺序</td>
+              <td>补边、删死节点、重新拓扑排序</td>
+            </tr>
+            <tr>
+              <td>Cost rule</td>
+              <td>累加每个节点的 token、API cost、latency 估计</td>
+              <td>计划超预算、昂贵工具过早调用</td>
+              <td>便宜工具优先、并行化、缓存复用</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top: 14px">
+          <pre>Compiler-style verifier pseudo-code:
+
+def verify(workflow, tool_contracts, budget):
+    diagnostics = []
+    diagnostics += check_graph_is_dag(workflow)
+    diagnostics += check_required_inputs(workflow, tool_contracts)
+    diagnostics += check_type_and_dataflow(workflow, tool_contracts)
+    diagnostics += check_preconditions(workflow, tool_contracts)
+    diagnostics += check_cost_and_safety(workflow, budget)
+
+    if has_blocking_errors(diagnostics):
+        patch = propose_minimal_patch(workflow, diagnostics)
+        return VerificationResult(status="blocked", diagnostics=diagnostics, patch=patch)
+
+    optimized = optimize_workflow(workflow)
+    return VerificationResult(status="ready", diagnostics=diagnostics, workflow=optimized)</pre>
+        </div>
+      </section>
+
+      <section id="experiment">
+        <div class="section-head">
+          <h2>实验故事</h2>
+          <p>实验要分成“可控诊断”和“真实 benchmark”两条线：前者证明编译器检查确实减少哪类错误，后者证明方法能迁移到已有 tool-use agent 任务。</p>
+        </div>
+
+        <div class="figure-card">
+          <h3>实验 Benchmark Stack</h3>
+          <img class="flowchart-img" src="workflowir_benchmark_ai_map.png" alt="AI-generated benchmark stack for WorkflowIR experiments">
+          <p>这张 AI 生成图展示四层实验栈：可控 sandbox、DAG planning benchmark、真实 API 风格 tool-use benchmark，以及交互式/学术查询类任务。网页下方的文字表格给出准确实验设计。</p>
+        </div>
+
+        <div class="experiments">
+          <article class="experiment">
+            <h3>第一层：Controlled Sandbox</h3>
+            <p>我们自建 30-50 个多工具任务，每个工具都有 schema、precondition、effect 和 failure mode，用于精确注入错误并做错误归因。</p>
+          </article>
+          <article class="experiment">
+            <h3>第二层：Planning Benchmark</h3>
+            <p>用 ComplexTool-Plan 评估 planner 生成 DAG / WorkflowIR 的结构质量，重点看 node selection、edge dependency 和 exact match。</p>
+          </article>
+          <article class="experiment">
+            <h3>第三层：Execution Benchmark</h3>
+            <p>用 StableToolBench / ToolBench、ScienceWorld、ToolQuery-Academic 测真实执行效果、工具调用稳定性和成本。</p>
+          </article>
+        </div>
+
+        <div class="benchmark-grid">
+          <article class="benchmark-card">
+            <h3>Controlled Workflow Sandbox</h3>
+            <p>这是我们自己构造的最小可控环境，目的不是追求大规模，而是把错误类型拆清楚。</p>
+            <ul>
+              <li><strong>特点</strong><span>工具 contract 完整、gold workflow 已知、可控注入缺参/错参/错序/工具失败。</span></li>
+              <li><strong>测什么</strong><span>静态检查能否提前发现错误，repair 能否最小 patch。</span></li>
+              <li><strong>指标</strong><span>invalid call rate、repair success、error localization accuracy、cost reduction。</span></li>
+            </ul>
+          </article>
+
+          <article class="benchmark-card">
+            <h3>ComplexTool-Plan</h3>
+            <p>`Beyond ReAct` 提出的 DAG planning 数据集，来自 4,500+ API 工具库，区分 Easy/Hard 难度。</p>
+            <ul>
+              <li><strong>特点</strong><span>有 ground-truth DAG，可直接评估工具节点选择和依赖边建模。</span></li>
+              <li><strong>测什么</strong><span>WorkflowIR planner 是否比普通 DAG planner 更容易生成可检查结构。</span></li>
+              <li><strong>指标</strong><span>node precision/recall/F1、edge precision/recall/F1、DAG exact match。</span></li>
+            </ul>
+          </article>
+
+          <article class="benchmark-card">
+            <h3>StableToolBench / ToolBench</h3>
+            <p>ToolBench 覆盖大量真实 API 风格工具；StableToolBench 用缓存和 API simulator 缓解真实 API 不稳定问题。</p>
+            <ul>
+              <li><strong>特点</strong><span>任务按工具泛化和场景复杂度划分，包含 seen/unseen tools 与 multi-tool cases。</span></li>
+              <li><strong>测什么</strong><span>WorkflowIR 是否提升端到端成功率，同时减少无效工具调用和推理轮数。</span></li>
+              <li><strong>指标</strong><span>Solvable Pass Rate、Solvable Win Rate、inference steps、tool calls、token cost。</span></li>
+            </ul>
+          </article>
+
+          <article class="benchmark-card">
+            <h3>ScienceWorld / ToolQuery-Academic</h3>
+            <p>ScienceWorld 是交互式科学任务环境；ToolQuery-Academic 更接近学术 API 查询与工具选择场景。</p>
+            <ul>
+              <li><strong>特点</strong><span>ScienceWorld 强调多步交互和状态变化；ToolQuery-Academic 强调工具选择和参数传递。</span></li>
+              <li><strong>测什么</strong><span>WorkflowIR 在动态状态任务和学术查询 workflow 中是否仍然有效。</span></li>
+              <li><strong>指标</strong><span>task success、action efficiency、state/precondition errors、tool-selection accuracy。</span></li>
+            </ul>
+          </article>
+        </div>
+
+        <table class="benchmark-table" aria-label="WorkflowIR baseline and benchmark design">
+          <thead>
+            <tr>
+              <th>实验问题</th>
+              <th>Benchmark</th>
+              <th>比较方法</th>
+              <th>关键结论想证明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>编译器检查是否有用？</td>
+              <td>Controlled Sandbox</td>
+              <td>ReAct、DAG-only、WorkflowIR without checks、WorkflowIR full</td>
+              <td>WorkflowIR 能显著降低 type mismatch、missing dependency、wrong order。</td>
+            </tr>
+            <tr>
+              <td>结构化计划是否更准确？</td>
+              <td>ComplexTool-Plan</td>
+              <td>Prompted DAG planner、Beyond-ReAct-style planner、WorkflowIR planner</td>
+              <td>Typed IR 不只是 DAG，多出的 contract 字段让计划更可验证。</td>
+            </tr>
+            <tr>
+              <td>端到端执行是否提升？</td>
+              <td>StableToolBench / ToolBench</td>
+              <td>ReAct、Plan-and-Execute、LLMCompiler、DAG-only、WorkflowIR full</td>
+              <td>WorkflowIR 在成功率、无效调用、推理步数和成本之间取得更好平衡。</td>
+            </tr>
+            <tr>
+              <td>动态环境是否有效？</td>
+              <td>ScienceWorld</td>
+              <td>ReAct、Reflexion-style repair、WorkflowIR repair</td>
+              <td>把失败映射为 counterexample 后，局部修复比整体重试更稳定。</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="metrics" style="margin-top: 14px">
+          <div class="metric-card"><strong>SR</strong><h3>Success Rate</h3><p>任务最终是否完成。</p></div>
+          <div class="metric-card"><strong>ICR</strong><h3>Invalid Call Rate</h3><p>无效工具调用比例。</p></div>
+          <div class="metric-card"><strong>RSR</strong><h3>Repair Success Rate</h3><p>失败后局部修复成功率。</p></div>
+          <div class="metric-card"><strong>Cost</strong><h3>Token / Tool Cost</h3><p>LLM 调用和工具调用成本。</p></div>
+        </div>
+      </section>
+
+      <section id="value">
+        <div class="section-head">
+          <h2>最终卖点</h2>
+          <p>论文定位不是“又一个 agent 框架”，而是提出一个更基础的系统抽象。</p>
+        </div>
+        <div class="thesis">
+          <div class="quote">
+            <h3>英文 Claim</h3>
+            <p>
+              ReAct agents are locally adaptive but globally myopic and expensive.
+              Planner-based agents improve global structure but still execute unverified workflow graphs.
+              We introduce a compiler-style architecture that represents tool workflows as typed IR, enabling static validation, cost-aware optimization, and counterexample-guided repair.
+            </p>
+          </div>
+          <div class="quote">
+            <h3>中文 Claim</h3>
+            <p>
+              ReAct 解决了工具调用的灵活性，但没有解决全局结构；DAG planner 解决了全局结构，但没有解决可验证执行。
+              我们提出 WorkflowIR，把 agent workflow 从“模型生成的计划”提升为“可编译的程序”。
+            </p>
+          </div>
+        </div>
+        <div class="compare" style="margin-top: 14px">
+          <article class="insight"><h3>更可靠</h3><p>执行前发现类型、依赖、前置条件和预算错误。</p></article>
+          <article class="insight"><h3>更便宜</h3><p>减少无效 LLM/tool calls，合并重复步骤，识别可并行分支。</p></article>
+          <article class="insight"><h3>更可修复</h3><p>失败后局部 patch 子图，而不是整条 workflow 重来。</p></article>
+        </div>
+        <div class="footer-note">
+          建议标题：WorkflowIR: Compiling Tool-Using LLM Agents into Typed, Verifiable, and Self-Repairing Workflows
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const navButtons = Array.from(document.querySelectorAll(".nav button"));
+    const sections = navButtons.map((button) => document.querySelector(button.dataset.scroll));
+
+    navButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const target = document.querySelector(button.dataset.scroll);
+        if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (!visible) return;
+      navButtons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.scroll === "#" + visible.target.id);
+      });
+    }, { threshold: [0.25, 0.45, 0.65] });
+
+    sections.forEach((section) => {
+      if (section) observer.observe(section);
+    });
+
+    const tabs = Array.from(document.querySelectorAll(".tabs button"));
+    const panels = Array.from(document.querySelectorAll(".tab-panel"));
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const id = "tab-" + tab.dataset.tab;
+        tabs.forEach((item) => item.classList.toggle("active", item === tab));
+        panels.forEach((panel) => panel.classList.toggle("active", panel.id === id));
+      });
+    });
+  </script>
+</body>
+</html>
