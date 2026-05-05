@@ -1,0 +1,493 @@
+{
+  "anchors": [
+    "tool-using LLM agent benchmarks",
+    "DAG planning",
+    "executable workflows",
+    "API tool selection",
+    "dependency edges",
+    "exact-match workflow plans"
+  ],
+  "deltas": {
+    "abstract_rate_at_k": 0.0,
+    "anchor_coverage_at_k": -0.1667,
+    "artifact_pass_rate": 0.0,
+    "core_at_k": 0.05,
+    "covered_anchors_at_k": null,
+    "doi_rate_at_k": 0.0,
+    "empty_download_queries": 0.0,
+    "max_reported_query": -107.0,
+    "mean_combined_at_k": 0.0229,
+    "mean_quality_at_k": -0.0376,
+    "mean_relevance_at_k": 0.0554,
+    "mean_reported_per_query": -36.8,
+    "missing_artifacts": null,
+    "off_topic_at_k": 0.0,
+    "present_artifacts": 8.0,
+    "query_count": 0.0,
+    "required_artifacts": 8.0,
+    "result_rows": -236.0,
+    "supporting_or_core_at_k": 0.0,
+    "too_broad_queries": 0.0,
+    "top_k": 0.0,
+    "total_deduped_works": -236.0,
+    "total_downloaded_rows": -219.0,
+    "total_reported_count": -184.0,
+    "zero_result_queries": 0.0
+  },
+  "topic": "benchmarks for tool-using LLM agents that evaluate DAG planning, executable workflows, API-tool selection, dependency edges, and exact-match workflow plans",
+  "workflow": {
+    "label": "Workflow",
+    "manifest_path": "/Users/zhuyingqin/Documents/New project/Auto-claude-code-research-in-sleep/lit-watch/real-agent-trials/20260505T020439Z-benchmarks-for-tool-using-llm-agents-that-evaluate-dag-planning-executable-workf/openalex/manifest.json",
+    "metrics": {
+      "abstract_rate_at_k": 1.0,
+      "anchor_coverage_at_k": 0.6667,
+      "artifact_pass_rate": 1.0,
+      "core_at_k": 0.0,
+      "covered_anchors_at_k": [
+        "API tool selection",
+        "DAG planning",
+        "exact-match workflow plans",
+        "tool-using LLM agent benchmarks"
+      ],
+      "doi_rate_at_k": 1.0,
+      "empty_download_queries": 0,
+      "max_reported_query": 219,
+      "mean_combined_at_k": 0.6067,
+      "mean_quality_at_k": 0.8342,
+      "mean_relevance_at_k": 0.4842,
+      "mean_reported_per_query": 90.2,
+      "missing_artifacts": [],
+      "off_topic_at_k": 0.0,
+      "present_artifacts": 3,
+      "query_count": 5,
+      "required_artifacts": 3,
+      "result_rows": 348,
+      "supporting_or_core_at_k": 1.0,
+      "too_broad_queries": 0,
+      "top_k": 20,
+      "total_deduped_works": 348,
+      "total_downloaded_rows": 366,
+      "total_reported_count": 451,
+      "zero_result_queries": 0
+    },
+    "run_dir": "/Users/zhuyingqin/Documents/New project/Auto-claude-code-research-in-sleep/lit-watch/real-agent-trials/20260505T020439Z-benchmarks-for-tool-using-llm-agents-that-evaluate-dag-planning-executable-workf",
+    "top_papers": [
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "exact-match workflow plans"
+        ],
+        "combined_score": 0.7044,
+        "doi": "https://doi.org/10.1057/s41599-024-03611-3",
+        "matched_queries": [
+          "exact_match_workflow"
+        ],
+        "quality_score": 0.96,
+        "rank": 1,
+        "relevance": "supporting",
+        "relevance_score": 0.5667,
+        "source": "Humanities and Social Sciences Communications",
+        "title": "Large language models empowered agent-based modeling and simulation: a survey and perspectives",
+        "year": 2024
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "DAG planning"
+        ],
+        "combined_score": 0.6903,
+        "doi": "https://doi.org/10.1056/aidbp2500144",
+        "matched_queries": [
+          "llm_agent_benchmark"
+        ],
+        "quality_score": 0.9198,
+        "rank": 2,
+        "relevance": "supporting",
+        "relevance_score": 0.5667,
+        "source": "NEJM AI",
+        "title": "MedAgentBench: A Virtual EHR Environment to Benchmark Medical LLM Agents",
+        "year": 2025
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "exact-match workflow plans"
+        ],
+        "combined_score": 0.6517,
+        "doi": "https://doi.org/10.1093/bib/bbag075",
+        "matched_queries": [
+          "llm_agent_benchmark",
+          "exact_match_workflow"
+        ],
+        "quality_score": 0.8095,
+        "rank": 3,
+        "relevance": "supporting",
+        "relevance_score": 0.5667,
+        "source": "Briefings in Bioinformatics",
+        "title": "Artificial Intelligence agents for biological research: a survey",
+        "year": 2026
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "API tool selection"
+        ],
+        "combined_score": 0.6408,
+        "doi": "https://doi.org/10.3390/smartcities8010019",
+        "matched_queries": [
+          "tool_use_planning_eval"
+        ],
+        "quality_score": 0.941,
+        "rank": 4,
+        "relevance": "supporting",
+        "relevance_score": 0.4792,
+        "source": "Smart Cities",
+        "title": "LLM Agents for Smart City Management: Enhancing Decision Support Through Multi-Agent AI Systems",
+        "year": 2025
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "DAG planning"
+        ],
+        "combined_score": 0.6309,
+        "doi": "https://doi.org/10.3390/s26082330",
+        "matched_queries": [
+          "dag_planning_eval"
+        ],
+        "quality_score": 0.75,
+        "rank": 5,
+        "relevance": "supporting",
+        "relevance_score": 0.5667,
+        "source": "Sensors",
+        "title": "Agentic and LLM-Based Multimodal Anomaly Detection: Architectures, Challenges, and Prospects",
+        "year": 2026
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks"
+        ],
+        "combined_score": 0.6214,
+        "doi": "https://doi.org/10.1038/s41746-025-01475-8",
+        "matched_queries": [
+          "llm_agent_benchmark"
+        ],
+        "quality_score": 0.9244,
+        "rank": 6,
+        "relevance": "supporting",
+        "relevance_score": 0.4583,
+        "source": "npj Digital Medicine",
+        "title": "Large language model agents can use tools to perform clinical calculations",
+        "year": 2025
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "exact-match workflow plans"
+        ],
+        "combined_score": 0.6099,
+        "doi": "https://doi.org/10.1145/3726302.3731959",
+        "matched_queries": [
+          "exact_match_workflow"
+        ],
+        "quality_score": 0.69,
+        "rank": 7,
+        "relevance": "supporting",
+        "relevance_score": 0.5667,
+        "source": "Proceedings of the 48th International ACM SIGIR Conference on Research and Development in Information Retrieval",
+        "title": "Insight Agents: An LLM-Based Multi-Agent System for Data Insights",
+        "year": 2025
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "DAG planning"
+        ],
+        "combined_score": 0.6016,
+        "doi": "https://doi.org/10.3390/en17225633",
+        "matched_queries": [
+          "dag_planning_eval"
+        ],
+        "quality_score": 0.829,
+        "rank": 8,
+        "relevance": "supporting",
+        "relevance_score": 0.4792,
+        "source": "Energies",
+        "title": "Exploring the Application of Large Language Models Based AI Agents in Leakage Detection of Natural Gas Valve Chambers",
+        "year": 2024
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "exact-match workflow plans"
+        ],
+        "combined_score": 0.5948,
+        "doi": "https://doi.org/10.3390/info16090809",
+        "matched_queries": [
+          "exact_match_workflow"
+        ],
+        "quality_score": 0.8095,
+        "rank": 9,
+        "relevance": "supporting",
+        "relevance_score": 0.4792,
+        "source": "Information",
+        "title": "BPMN-Based Design of Multi-Agent Systems: Personalized Language Learning Workflow Automation with RAG-Enhanced Knowledge Access",
+        "year": 2025
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks"
+        ],
+        "combined_score": 0.5909,
+        "doi": "https://doi.org/10.3389/frai.2025.1557920",
+        "matched_queries": [
+          "llm_agent_benchmark"
+        ],
+        "quality_score": 0.8372,
+        "rank": 10,
+        "relevance": "supporting",
+        "relevance_score": 0.4583,
+        "source": "Frontiers in Artificial Intelligence",
+        "title": "Swedish Medical LLM Benchmark: development and evaluation of a framework for assessing large language models in the Swedish medical domain",
+        "year": 2025
+      }
+    ]
+  },
+  "workflowir": {
+    "label": "WorkflowIR",
+    "manifest_path": "/Users/zhuyingqin/Documents/New project/Auto-claude-code-research-in-sleep/lit-watch/workflowir-agent-runs/20260505T052505Z-benchmarks-for-tool-using-llm-agents-that-evaluate-dag-planning-executable-workflows-api-tool-se/openalex/manifest.json",
+    "metrics": {
+      "abstract_rate_at_k": 1.0,
+      "anchor_coverage_at_k": 0.5,
+      "artifact_pass_rate": 1.0,
+      "core_at_k": 0.05,
+      "covered_anchors_at_k": [
+        "API tool selection",
+        "DAG planning",
+        "tool-using LLM agent benchmarks"
+      ],
+      "doi_rate_at_k": 1.0,
+      "empty_download_queries": 0,
+      "max_reported_query": 112,
+      "mean_combined_at_k": 0.6296,
+      "mean_quality_at_k": 0.7966,
+      "mean_relevance_at_k": 0.5396,
+      "mean_reported_per_query": 53.4,
+      "missing_artifacts": [],
+      "off_topic_at_k": 0.0,
+      "present_artifacts": 11,
+      "query_count": 5,
+      "required_artifacts": 11,
+      "result_rows": 112,
+      "supporting_or_core_at_k": 1.0,
+      "too_broad_queries": 0,
+      "top_k": 20,
+      "total_deduped_works": 112,
+      "total_downloaded_rows": 147,
+      "total_reported_count": 267,
+      "zero_result_queries": 0
+    },
+    "run_dir": "/Users/zhuyingqin/Documents/New project/Auto-claude-code-research-in-sleep/lit-watch/workflowir-agent-runs/20260505T052505Z-benchmarks-for-tool-using-llm-agents-that-evaluate-dag-planning-executable-workflows-api-tool-se",
+    "top_papers": [
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "DAG planning",
+          "API tool selection"
+        ],
+        "combined_score": 0.7607,
+        "doi": "https://doi.org/10.1056/aidbp2500144",
+        "matched_queries": [
+          "llm_agent_benchmark",
+          "tool_calling_evaluation",
+          "api_tool_selection",
+          "workflow_plan_correctness"
+        ],
+        "quality_score": 0.9198,
+        "rank": 1,
+        "relevance": "core",
+        "relevance_score": 0.675,
+        "source": "NEJM AI",
+        "title": "MedAgentBench: A Virtual EHR Environment to Benchmark Medical LLM Agents",
+        "year": 2025
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "API tool selection"
+        ],
+        "combined_score": 0.6857,
+        "doi": "https://doi.org/10.1007/s41019-025-00296-9",
+        "matched_queries": [
+          "llm_agent_benchmark",
+          "tool_calling_evaluation",
+          "api_tool_selection",
+          "workflow_plan_correctness"
+        ],
+        "quality_score": 0.9066,
+        "rank": 2,
+        "relevance": "supporting",
+        "relevance_score": 0.5667,
+        "source": "Data Science and Engineering",
+        "title": "LLM-Based Agents for Tool Learning: A Survey",
+        "year": 2025
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "API tool selection"
+        ],
+        "combined_score": 0.6614,
+        "doi": "https://doi.org/10.3390/info16100894",
+        "matched_queries": [
+          "llm_agent_benchmark",
+          "tool_calling_evaluation",
+          "api_tool_selection",
+          "workflow_plan_correctness"
+        ],
+        "quality_score": 0.8372,
+        "rank": 3,
+        "relevance": "supporting",
+        "relevance_score": 0.5667,
+        "source": "Information",
+        "title": "Large Language Model Agents for Biomedicine: A Comprehensive Review of Methods, Evaluations, Challenges, and Future Directions",
+        "year": 2025
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "API tool selection"
+        ],
+        "combined_score": 0.6585,
+        "doi": "https://doi.org/10.1016/s2666-5247(24)00104-6",
+        "matched_queries": [
+          "llm_agent_benchmark"
+        ],
+        "quality_score": 0.829,
+        "rank": 4,
+        "relevance": "supporting",
+        "relevance_score": 0.5667,
+        "source": "The Lancet Microbe",
+        "title": "Importance of investing time and money in integrating large language model-based agents into outbreak analytics pipelines",
+        "year": 2024
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "API tool selection"
+        ],
+        "combined_score": 0.6517,
+        "doi": "https://doi.org/10.3390/bdcc9120309",
+        "matched_queries": [
+          "llm_agent_benchmark",
+          "api_tool_selection",
+          "workflow_plan_correctness"
+        ],
+        "quality_score": 0.8095,
+        "rank": 5,
+        "relevance": "supporting",
+        "relevance_score": 0.5667,
+        "source": "Big Data and Cognitive Computing",
+        "title": "Evaluating Faithfulness in Agentic RAG Systems for e-Governance Applications Using LLM-Based Judging Frameworks",
+        "year": 2025
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "API tool selection"
+        ],
+        "combined_score": 0.6438,
+        "doi": "https://doi.org/10.18653/v1/2025.findings-naacl.285",
+        "matched_queries": [
+          "llm_agent_benchmark",
+          "api_tool_selection"
+        ],
+        "quality_score": 0.7871,
+        "rank": 6,
+        "relevance": "supporting",
+        "relevance_score": 0.5667,
+        "source": "Findings of the Association for Computational Linguistics: NAACL 2025",
+        "title": "CodeSim: Multi-Agent Code Generation and Problem Solving through Simulation-Driven Planning and Debugging",
+        "year": 2025
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "API tool selection"
+        ],
+        "combined_score": 0.6309,
+        "doi": "https://doi.org/10.5815/ijmecs.2025.05.07",
+        "matched_queries": [
+          "api_tool_selection",
+          "workflow_plan_correctness"
+        ],
+        "quality_score": 0.75,
+        "rank": 7,
+        "relevance": "supporting",
+        "relevance_score": 0.5667,
+        "source": "International Journal of Modern Education and Computer Science",
+        "title": "Local Agentic RAG-Based Information SystemDevelopment for Intelligent Analysis of GitHubCode Repositories in Computer ScienceEducation",
+        "year": 2025
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "API tool selection"
+        ],
+        "combined_score": 0.6309,
+        "doi": "https://doi.org/10.3390/systems14040374",
+        "matched_queries": [
+          "api_tool_selection",
+          "workflow_plan_correctness"
+        ],
+        "quality_score": 0.75,
+        "rank": 8,
+        "relevance": "supporting",
+        "relevance_score": 0.5667,
+        "source": "Systems",
+        "title": "Operational Resilience Under Carbon Constraints: A Socio-Technical Multi-Agentic Approach to Global Supply Chains",
+        "year": 2026
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "API tool selection"
+        ],
+        "combined_score": 0.623,
+        "doi": "https://doi.org/10.18653/v1/2025.findings-naacl.54",
+        "matched_queries": [
+          "llm_agent_benchmark",
+          "api_tool_selection"
+        ],
+        "quality_score": 0.7275,
+        "rank": 9,
+        "relevance": "supporting",
+        "relevance_score": 0.5667,
+        "source": "Findings of the Association for Computational Linguistics: NAACL 2025",
+        "title": "Efficient Multi-Agent Collaboration with Tool Use for Online Planning in Complex Table Question Answering",
+        "year": 2025
+      },
+      {
+        "anchor_hits": [
+          "tool-using LLM agent benchmarks",
+          "API tool selection"
+        ],
+        "combined_score": 0.6099,
+        "doi": "https://doi.org/10.22541/au.175795684.47167615/v1",
+        "matched_queries": [
+          "llm_agent_benchmark",
+          "tool_calling_evaluation",
+          "api_tool_selection",
+          "workflow_plan_correctness"
+        ],
+        "quality_score": 0.69,
+        "rank": 10,
+        "relevance": "supporting",
+        "relevance_score": 0.5667,
+        "source": "Authorea Inc.",
+        "title": "Large Language Model Agents for Biomedicine: A Comprehensive Review of Methods, Evaluations, Challenges, and Future Directions",
+        "year": 2025
+      }
+    ]
+  }
+}

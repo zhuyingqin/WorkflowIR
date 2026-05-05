@@ -1,34 +1,42 @@
-# WorkflowIR: Structured Workflows for Reliable Literature Search
+# WorkflowIR: 用结构化 Workflow 提升文献检索 Agent 可靠性
 
-[中文介绍](docs/workflowir-cn.md) | [Visual Guide](docs/workflowir_visual_learning.html)
+[English README](README_EN.md) | [中文介绍](docs/workflowir-cn.md) | [可视化学习页](docs/workflowir_visual_learning.html)
 
-WorkflowIR 是一个用于研究工具调用型 LLM Agent 可靠性的实验项目。当前以论文检索为任务域，对比自由提示词 Agent 和带有 schema、precondition、effect、failure mode 的 WorkflowIR 结构化 workflow，观察真实调用中的超时、漏文件、宽泛检索、空结果、协议不合规和错误归因问题。
+WorkflowIR 是一个用于研究 **工具调用型 LLM Agent 是否能通过结构化工作流变得更可靠** 的实验项目。当前任务域是论文检索：我们对比自由提示词 Agent 和带有 `schema`、`precondition`、`effect`、`failure mode` 的 WorkflowIR 结构化 workflow，观察真实调用中的超时、漏文件、宽泛检索、空结果、协议不合规和错误归因问题。
 
-WorkflowIR studies one concrete question:
+这个项目想回答一个具体问题：
 
-> Can an explicit WorkflowIR contract make tool-using LLM agents more reliable than a free-form prompt?
+> 显式的 WorkflowIR contract，能否让工具调用型 LLM Agent 比自由提示词更稳定、更可检查、更容易定位错误？
 
-The benchmark is **academic literature search**. A baseline agent is asked to search OpenAlex, design queries, export papers, and write a summary with minimal structure. WorkflowIR runs the same topic set through a typed workflow where each step has a schema, precondition, effect, failure mode, and trace record.
+论文检索是一个很适合测试这个问题的任务。普通 Agent 看起来只是在搜索 OpenAlex、设计 query、导出论文、写 summary，但真实运行中经常出现：query 太宽、query 为空、导出失败、结果文件缺失、summary 和检索结果不一致、超时后无法判断错误来源等问题。WorkflowIR 把同一个任务拆成带类型和约束的节点，让每一步都留下可审计证据。
 
-This repository is therefore not just a paper-search script. It is a dataset and evaluation scaffold for measuring whether workflow structure improves:
+本仓库不只是一个 paper-search 脚本，而是一个用于评估结构化 workflow 是否能提升 Agent 可靠性的实验框架。当前重点衡量：
 
-- task completion;
-- protocol compliance;
-- artifact quality and completeness;
-- error attribution;
-- recovery from broad, empty, missing, or failed tool calls.
+- 任务完成率；
+- 工具调用协议遵守程度；
+- 输出文件和中间证据是否完整；
+- 错误能否定位到具体节点；
+- 对宽泛、空结果、漏文件、失败工具调用的恢复能力；
+- 同一主题下 Workflow 和 WorkflowIR 的检索质量差异。
 
 ![WorkflowIR experiment results](docs/workflowir_experiment_results.png)
 
-## What This Project Does
+![Workflow vs WorkflowIR search-quality experiment](docs/workflow_vs_workflowir_search_quality_experiment.png)
 
-The current reproducible comparison uses two run types: real free-form baseline runs and WorkflowIR workflow runs.
+最新的 paired-topic 实验在同一文献检索主题上对比自由 Workflow 和 WorkflowIR，并用同一个检索质量评估器打分。报告包含候选池规模、top-k 相关性、核心论文比例、anchor 覆盖、质量信号和审计产物：
 
-**1. Real baseline agent traces**
+- [搜索质量对比报告](data/workflowir_litsearch_eval/workflow_vs_workflowir_search_quality_workflow_planning_benchmarks.md)
+- [机器可读 JSON 结果](data/workflowir_litsearch_eval/workflow_vs_workflowir_search_quality_workflow_planning_benchmarks.json)
 
-A real ARIS/MiniMax/OpenAlex runner that asks an LLM agent to solve literature-search tasks. It saves the actual prompts, commands, stdout/stderr, query plans, OpenAlex outputs, summaries, blocked states, timeouts, and trace labels.
+## 项目做什么
 
-Output:
+当前可复现实验包含两类运行：真实自由 Agent baseline 和 WorkflowIR 结构化 workflow。
+
+**1. 真实自由 Agent traces**
+
+这一组使用真实 ARIS/MiniMax/OpenAlex runner，让 LLM Agent 自由完成论文检索任务。系统保存真实 prompt、命令、stdout/stderr、query plan、OpenAlex 输出、summary、blocked 状态、timeout 和自动挖掘的异常标签。
+
+输出目录：
 
 ```text
 lit-watch/real-agent-trials/
@@ -37,7 +45,7 @@ data/real_agent_litwatch_traces/workflowir_seed/
 
 **2. WorkflowIR workflow runs**
 
-A WorkflowIR runner executes the same topics as a workflow graph:
+这一组把相同主题转成显式 workflow 图执行：
 
 ```text
 create_run
@@ -50,24 +58,24 @@ create_run
   -> verify_contract
 ```
 
-The runner validates intermediate artifacts, repairs over-broad or zero-result queries, records node-level failures, and checks that every required output exists.
+Runner 会检查中间产物、修复过宽或零结果 query、记录节点级失败，并验证所有必需输出文件是否存在。
 
-Output:
+输出目录：
 
 ```text
 lit-watch/workflowir-agent-runs/
 data/workflowir_litsearch_eval/
 ```
 
-## How To Use
+## 如何运行
 
-From the repository root:
+进入仓库根目录：
 
 ```bash
 cd /path/to/WorkflowIR
 ```
 
-Run the WorkflowIR pipeline in plan-only mode:
+只生成 WorkflowIR plan，不调用 OpenAlex：
 
 ```bash
 python3 scripts/workflowir/run_workflowir_litsearch_trials.py \
@@ -75,7 +83,7 @@ python3 scripts/workflowir/run_workflowir_litsearch_trials.py \
   --max-trials 1
 ```
 
-Run the WorkflowIR pipeline with real OpenAlex calls:
+运行 WorkflowIR，并真实调用 OpenAlex：
 
 ```bash
 python3 scripts/workflowir/run_workflowir_litsearch_trials.py \
@@ -85,7 +93,7 @@ python3 scripts/workflowir/run_workflowir_litsearch_trials.py \
   --max-results-per-query 50
 ```
 
-Run real free-form baseline agent trials:
+运行真实自由 Agent baseline：
 
 ```bash
 python3 scripts/workflowir/run_real_litwatch_trials.py \
@@ -94,9 +102,9 @@ python3 scripts/workflowir/run_real_litwatch_trials.py \
   --max-trials 5
 ```
 
-The baseline command invokes ARIS and therefore needs a working ARIS binary plus the configured LLM API credentials. The WorkflowIR runner only needs Python and network access to OpenAlex when `--execute` is used.
+baseline 会调用 ARIS 和 LLM API，因此需要可用的 ARIS binary 和对应 API 凭证。WorkflowIR runner 在 `--execute` 时只需要 Python 和访问 OpenAlex 的网络环境。
 
-Compare baseline and WorkflowIR batches:
+对比 baseline 和 WorkflowIR batch：
 
 ```bash
 python3 scripts/workflowir/analyze_workflowir_litsearch_effectiveness.py \
@@ -105,63 +113,74 @@ python3 scripts/workflowir/analyze_workflowir_litsearch_effectiveness.py \
   --out-dir data/workflowir_litsearch_eval
 ```
 
-Open the visual explanation:
+对比同一主题下 Workflow 和 WorkflowIR 的搜索质量：
+
+```bash
+python3 scripts/workflowir/evaluate_workflow_vs_workflowir_search_quality.py \
+  --workflow-run-dir lit-watch/real-agent-trials/20260505T020439Z-benchmarks-for-tool-using-llm-agents-that-evaluate-dag-planning-executable-workf \
+  --workflowir-run-dir lit-watch/workflowir-agent-runs/20260505T052505Z-benchmarks-for-tool-using-llm-agents-that-evaluate-dag-planning-executable-workflows-api-tool-se \
+  --output-prefix workflow_vs_workflowir_search_quality_workflow_planning_benchmarks
+```
+
+打开可视化说明：
 
 ```text
 docs/workflowir_visual_learning.html
 ```
 
-GitHub Pages:
+GitHub Pages：
 
 ```text
 https://zhuyingqin.github.io/WorkflowIR/
 ```
 
-## Repository Layout
+## 目录结构
 
 ```text
 configs/
-  real_litwatch_trials.example.json          real baseline trial topics
-  workflowir_litsearch_trials.example.json   WorkflowIR workflow trial topics
+  real_litwatch_trials.example.json          真实 baseline 主题配置
+  workflowir_litsearch_trials.example.json   WorkflowIR workflow 主题配置
 
 scripts/workflowir/
-  run_real_litwatch_trials.py                free-form LLM-agent baseline runner
-  build_real_litwatch_trace_dataset.py       trace miner for real agent runs
+  run_real_litwatch_trials.py                自由 LLM Agent baseline runner
+  build_real_litwatch_trace_dataset.py       真实 Agent trace 挖掘脚本
   run_workflowir_litsearch_trials.py         WorkflowIR workflow runner
   analyze_workflowir_litsearch_effectiveness.py
-                                               baseline-vs-WorkflowIR comparison
-  build_paper_retrieval_db.py                utility for retrieval metadata
+                                             baseline-vs-WorkflowIR 完成率对比
+  evaluate_workflow_vs_workflowir_search_quality.py
+                                             Workflow-vs-WorkflowIR 搜索质量对比
+  build_paper_retrieval_db.py                检索元数据工具
 
 scripts/litwatch/
-  aris_openalex_lit_watch.py                 ARIS + OpenAlex literature-watch executor
-  run_aris_prompt.sh                         helper for direct ARIS prompt runs
+  aris_openalex_lit_watch.py                 ARIS + OpenAlex 文献检索执行器
+  run_aris_prompt.sh                         直接运行 ARIS prompt 的 helper
 
 scripts/datasets/
-  build_aaai2026_awesome_index.py            auxiliary dataset utility
-  build_llm_agents_tool_use_collection.py    auxiliary dataset utility
-  download_aaai2026_ojs.py                   auxiliary dataset utility
-  filter_aaai2026_llm_related.py             auxiliary dataset utility
+  build_aaai2026_awesome_index.py            辅助数据集工具
+  build_llm_agents_tool_use_collection.py    辅助数据集工具
+  download_aaai2026_ojs.py                   辅助数据集工具
+  filter_aaai2026_llm_related.py             辅助数据集工具
 
 openalex-search/
 crates/runtime/assets/skills/openalex-search/
-  reusable OpenAlex export skill and scripts
+  可复用 OpenAlex 导出 skill 和脚本
 
 data/
-  real_agent_litwatch_traces/                mined real-agent trace dataset
-  workflowir_litsearch_eval/                 comparison reports
+  real_agent_litwatch_traces/                真实 Agent trace 数据集
+  workflowir_litsearch_eval/                 对比报告和评估结果
 
 docs/
-  workflowir-cn.md                            Chinese project introduction
-  workflowir_visual_learning.html            GitHub Pages visual walkthrough
-  upstream-aris-cn.md                        archived upstream ARIS Chinese README
-  upstream-aris-en.md                        archived upstream ARIS English README
+  workflowir-cn.md                           中文项目介绍
+  workflowir_visual_learning.html            GitHub Pages 可视化学习页
+  upstream-aris-cn.md                        上游 ARIS 中文 README 归档
+  upstream-aris-en.md                        上游 ARIS 英文 README 归档
 ```
 
-`idea-stage/` and `research-wiki/` are intentionally ignored and not tracked in Git.
+`idea-stage/` 和 `research-wiki/` 是本地工作目录，已被 `.gitignore` 屏蔽，不会上传到 GitHub。
 
-## Current Seed Result
+## 当前种子结果
 
-The seed comparison already shows why the structured workflow matters:
+已有 seed comparison 显示结构化 workflow 的价值：
 
 ```text
 Baseline free-form agent:
@@ -175,13 +194,13 @@ WorkflowIR workflow agent:
   full_export_rate    = 100%
 ```
 
-This supports a reliability claim: WorkflowIR improves completion, artifact contracts, and error attribution for literature-search agents. It does not yet fully prove semantic retrieval quality. The next evaluation step is top-k paper relevance grading, either by humans or a separately prompted judge model.
+这支持一个可靠性结论：WorkflowIR 能提升文献检索 Agent 的完成率、artifact contract 遵守程度和错误归因能力。
 
-## Upstream Foundation
+搜索质量实验进一步说明：WorkflowIR 不一定最大化候选池规模，但能生成更强的审计链，并在当前 paired-topic 结果中取得更高的 top-k 相关性和综合检索质量分数。自由 Workflow 的候选池更大，适合追求 recall，但也带来更高筛选成本。
 
-WorkflowIR is built on top of ARIS-Code, a multi-agent research automation CLI. The original upstream README files were moved out of the repository root so the root README can describe this project directly:
+## 上游基础
+
+WorkflowIR 构建在 ARIS-Code 之上。ARIS-Code 提供多 Agent 研究自动化 CLI、skill 系统和文献检索基础设施。为了让根目录 README 专门介绍本项目，原始上游 README 已归档到：
 
 - `docs/upstream-aris-cn.md`
 - `docs/upstream-aris-en.md`
-
-ARIS-Code provides the agent runtime, skill system, and literature-search infrastructure used by the real baseline runs.
