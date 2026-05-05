@@ -1,6 +1,6 @@
 # WorkflowIR LitSearch Effectiveness Report
 
-This report compares the free-form baseline agent batch with the WorkflowIR-controlled batch on the same topic set.
+This report compares the free-form baseline agent batch with the WorkflowIR workflow batch on the same topic set.
 
 ## Metrics
 

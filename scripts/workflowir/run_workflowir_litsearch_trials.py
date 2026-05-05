@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Run WorkflowIR-controlled literature-search trials.
+"""Run WorkflowIR workflow literature-search trials.
 
-This runner is the controlled counterpart to ``run_real_litwatch_trials.py``.
+This runner is the WorkflowIR counterpart to ``run_real_litwatch_trials.py``.
 The baseline lets an agent freely plan, call OpenAlex, summarize, and exit.
 This runner turns the same task into a small WorkflowIR DAG:
 
@@ -346,7 +346,7 @@ def generate_query_plan(
 
     plan = {
         "project": project,
-        "description": f"WorkflowIR-controlled OpenAlex search strategy for {trial['topic']}",
+        "description": f"WorkflowIR workflow OpenAlex search strategy for {trial['topic']}",
         "shared": {
             "filter": f"from_publication_date:{from_date},to_publication_date:{to_date},type:article,language:en,is_retracted:false,is_paratext:false",
             "sort": "relevance_score:desc",

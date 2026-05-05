@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare free-form baseline lit-search runs against WorkflowIR-controlled runs."""
+"""Compare free-form baseline lit-search runs against WorkflowIR workflow runs."""
 
 from __future__ import annotations
 
@@ -92,10 +92,10 @@ def ratio(numerator: int, denominator: int) -> float | None:
     return round(numerator / denominator, 4)
 
 
-def delta(controlled: float | None, baseline: float | None) -> float | None:
-    if controlled is None or baseline is None:
+def delta(workflowir: float | None, baseline: float | None) -> float | None:
+    if workflowir is None or baseline is None:
         return None
-    return round(controlled - baseline, 4)
+    return round(workflowir - baseline, 4)
 
 
 def report_markdown(baseline: dict[str, Any], workflowir: dict[str, Any], output_json: Path) -> str:
@@ -108,15 +108,15 @@ def report_markdown(baseline: dict[str, Any], workflowir: dict[str, Any], output
     lines = [
         "# WorkflowIR LitSearch Effectiveness Report",
         "",
-        "This report compares the free-form baseline agent batch with the WorkflowIR-controlled batch on the same topic set.",
+        "This report compares the free-form baseline agent batch with the WorkflowIR workflow batch on the same topic set.",
         "",
         "## Metrics",
         "",
         "| Metric | Baseline | WorkflowIR | Delta |",
         "|---|---:|---:|---:|",
     ]
-    for name, base, controlled in rows:
-        lines.append(f"| {name} | {fmt(base)} | {fmt(controlled)} | {fmt(delta(controlled, base))} |")
+    for name, base, workflowir in rows:
+        lines.append(f"| {name} | {fmt(base)} | {fmt(workflowir)} | {fmt(delta(workflowir, base))} |")
     lines.extend(
         [
             "",

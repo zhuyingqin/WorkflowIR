@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Build a real agent-run trace dataset from existing lit-watch runs.
 
-This is different from the controlled synthetic sandbox. It mines artifacts
-already produced by ARIS/Codex literature-watch runs: prompts, reviewer
-directions, OpenAlex query plans, OpenAlex export manifests, summaries, stdout,
-stderr, and BLOCKED records. The output is a reproducible trace dataset of real
-agent behavior and observed run anomalies.
+It mines artifacts already produced by ARIS/Codex literature-watch runs:
+prompts, reviewer directions, OpenAlex query plans, OpenAlex export manifests,
+summaries, stdout, stderr, and BLOCKED records. The output is a reproducible
+trace dataset of real agent behavior and observed run anomalies.
 """
 
 from __future__ import annotations
@@ -540,9 +539,9 @@ def readme_text(manifest: dict[str, Any]) -> str:
 Dataset id: `{DATASET_ID}`
 
 This dataset is mined from existing ARIS/Codex literature-watch run artifacts.
-Unlike the controlled synthetic sandbox, these rows come from actual agent
-workflow outputs: prompts, reviewer directions, OpenAlex query plans, OpenAlex
-export manifests, summaries, blocked records, stdout, and stderr when present.
+These rows come from actual agent workflow outputs: prompts, reviewer
+directions, OpenAlex query plans, OpenAlex export manifests, summaries, blocked
+records, stdout, and stderr when present.
 
 ## Scope
 

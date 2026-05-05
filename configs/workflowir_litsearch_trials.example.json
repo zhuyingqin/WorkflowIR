@@ -1,5 +1,5 @@
 {
-  "batch_name": "workflowir-controlled-litsearch-seed",
+  "batch_name": "workflowir-workflow-litsearch-seed",
   "output_dir": "lit-watch/workflowir-agent-runs",
   "lookback_days": 730,
   "max_results_per_query": 150,

@@ -1320,68 +1320,44 @@ def verify(workflow, tool_contracts, budget):
       <section id="experiment">
         <div class="section-head">
           <h2>实验故事</h2>
-          <p>实验要分成“可控诊断”和“真实 benchmark”两条线：前者证明编译器检查确实减少哪类错误，后者证明方法能迁移到已有 tool-use agent 任务。</p>
+          <p>当前实验只保留两条主线：IR 表示层负责把任务写成可检查的结构，Workflow 执行层负责在真实论文检索任务中验证可靠性提升。</p>
         </div>
 
         <div class="figure-card">
-          <h3>实验 Benchmark Stack</h3>
+          <h3>IR + Workflow 实验视图</h3>
           <img class="flowchart-img" src="workflowir_benchmark_ai_map.png" alt="AI-generated benchmark stack for WorkflowIR experiments">
-          <p>这张 AI 生成图展示四层实验栈：可控 sandbox、DAG planning benchmark、真实 API 风格 tool-use benchmark，以及交互式/学术查询类任务。网页下方的文字表格给出准确实验设计。</p>
+          <p>当前实现聚焦论文检索：先把任务表示为 WorkflowIR，再用真实 OpenAlex 调用比较自由 Agent 和结构化 workflow 的完成率、协议遵守和错误归因。</p>
         </div>
 
         <div class="experiments">
           <article class="experiment">
-            <h3>第一层：Controlled Sandbox</h3>
-            <p>我们自建 30-50 个多工具任务，每个工具都有 schema、precondition、effect 和 failure mode，用于精确注入错误并做错误归因。</p>
+            <h3>IR：Typed Workflow Contract</h3>
+            <p>每个节点显式声明 schema、precondition、effect 和 failure mode，让论文检索任务从自然语言计划变成可检查的中间表示。</p>
           </article>
           <article class="experiment">
-            <h3>第二层：Planning Benchmark</h3>
-            <p>用 ComplexTool-Plan 评估 planner 生成 DAG / WorkflowIR 的结构质量，重点看 node selection、edge dependency 和 exact match。</p>
-          </article>
-          <article class="experiment">
-            <h3>第三层：Execution Benchmark</h3>
-            <p>用 StableToolBench / ToolBench、ScienceWorld、ToolQuery-Academic 测真实执行效果、工具调用稳定性和成本。</p>
+            <h3>Workflow：Real Literature Search</h3>
+            <p>同一组主题分别跑自由 Agent baseline 和 WorkflowIR workflow，对比超时、漏文件、查询修复、导出完整性和 contract pass rate。</p>
           </article>
         </div>
 
         <div class="benchmark-grid">
           <article class="benchmark-card">
-            <h3>Controlled Workflow Sandbox</h3>
-            <p>这是我们自己构造的最小可控环境，目的不是追求大规模，而是把错误类型拆清楚。</p>
+            <h3>Free-form Baseline</h3>
+            <p>真实调用 ARIS/MiniMax/OpenAlex，让 Agent 自己规划检索、调用工具、写总结，并保留实际失败行为。</p>
             <ul>
-              <li><strong>特点</strong><span>工具 contract 完整、gold workflow 已知、可控注入缺参/错参/错序/工具失败。</span></li>
-              <li><strong>测什么</strong><span>静态检查能否提前发现错误，repair 能否最小 patch。</span></li>
-              <li><strong>指标</strong><span>invalid call rate、repair success、error localization accuracy、cost reduction。</span></li>
+              <li><strong>特点</strong><span>真实 LLM 调用、真实 OpenAlex 查询、保留 timeout、stdout/stderr、SUMMARY 和 BLOCKED 状态。</span></li>
+              <li><strong>测什么</strong><span>自由提示词下 Agent 是否能稳定完成论文检索协议。</span></li>
+              <li><strong>指标</strong><span>completion rate、timeout rate、summary presence、query/artifact completeness。</span></li>
             </ul>
           </article>
 
           <article class="benchmark-card">
-            <h3>ComplexTool-Plan</h3>
-            <p>`Beyond ReAct` 提出的 DAG planning 数据集，来自 4,500+ API 工具库，区分 Easy/Hard 难度。</p>
+            <h3>WorkflowIR Runner</h3>
+            <p>把同一主题拆成 typed workflow 节点，按顺序执行 dry-run、query repair、full export、quality notes 和 contract check。</p>
             <ul>
-              <li><strong>特点</strong><span>有 ground-truth DAG，可直接评估工具节点选择和依赖边建模。</span></li>
-              <li><strong>测什么</strong><span>WorkflowIR planner 是否比普通 DAG planner 更容易生成可检查结构。</span></li>
-              <li><strong>指标</strong><span>node precision/recall/F1、edge precision/recall/F1、DAG exact match。</span></li>
-            </ul>
-          </article>
-
-          <article class="benchmark-card">
-            <h3>StableToolBench / ToolBench</h3>
-            <p>ToolBench 覆盖大量真实 API 风格工具；StableToolBench 用缓存和 API simulator 缓解真实 API 不稳定问题。</p>
-            <ul>
-              <li><strong>特点</strong><span>任务按工具泛化和场景复杂度划分，包含 seen/unseen tools 与 multi-tool cases。</span></li>
-              <li><strong>测什么</strong><span>WorkflowIR 是否提升端到端成功率，同时减少无效工具调用和推理轮数。</span></li>
-              <li><strong>指标</strong><span>Solvable Pass Rate、Solvable Win Rate、inference steps、tool calls、token cost。</span></li>
-            </ul>
-          </article>
-
-          <article class="benchmark-card">
-            <h3>ScienceWorld / ToolQuery-Academic</h3>
-            <p>ScienceWorld 是交互式科学任务环境；ToolQuery-Academic 更接近学术 API 查询与工具选择场景。</p>
-            <ul>
-              <li><strong>特点</strong><span>ScienceWorld 强调多步交互和状态变化；ToolQuery-Academic 强调工具选择和参数传递。</span></li>
-              <li><strong>测什么</strong><span>WorkflowIR 在动态状态任务和学术查询 workflow 中是否仍然有效。</span></li>
-              <li><strong>指标</strong><span>task success、action efficiency、state/precondition errors、tool-selection accuracy。</span></li>
+              <li><strong>特点</strong><span>节点级 trace、文件级 contract、过宽/空结果修复、完整 OpenAlex 导出。</span></li>
+              <li><strong>测什么</strong><span>结构化 workflow 是否提升完成率、协议遵守和错误归因。</span></li>
+              <li><strong>指标</strong><span>completion rate、contract pass rate、full export rate、timeout rate。</span></li>
             </ul>
           </article>
         </div>
@@ -1397,28 +1373,22 @@ def verify(workflow, tool_contracts, budget):
           </thead>
           <tbody>
             <tr>
-              <td>编译器检查是否有用？</td>
-              <td>Controlled Sandbox</td>
-              <td>ReAct、DAG-only、WorkflowIR without checks、WorkflowIR full</td>
-              <td>WorkflowIR 能显著降低 type mismatch、missing dependency、wrong order。</td>
+              <td>IR 表示是否有用？</td>
+              <td>WorkflowIR node contract</td>
+              <td>自由提示词任务描述 vs typed WorkflowIR</td>
+              <td>schema、precondition、effect、failure mode 让论文检索过程可检查、可归因。</td>
             </tr>
             <tr>
-              <td>结构化计划是否更准确？</td>
-              <td>ComplexTool-Plan</td>
-              <td>Prompted DAG planner、Beyond-ReAct-style planner、WorkflowIR planner</td>
-              <td>Typed IR 不只是 DAG，多出的 contract 字段让计划更可验证。</td>
+              <td>Workflow 执行是否提升？</td>
+              <td>Real OpenAlex literature-search runs</td>
+              <td>Free-form baseline vs WorkflowIR runner</td>
+              <td>WorkflowIR 在完成率、超时率、导出完整性和 contract pass rate 上优于自由 Agent。</td>
             </tr>
             <tr>
-              <td>端到端执行是否提升？</td>
-              <td>StableToolBench / ToolBench</td>
-              <td>ReAct、Plan-and-Execute、LLMCompiler、DAG-only、WorkflowIR full</td>
-              <td>WorkflowIR 在成功率、无效调用、推理步数和成本之间取得更好平衡。</td>
-            </tr>
-            <tr>
-              <td>动态环境是否有效？</td>
-              <td>ScienceWorld</td>
-              <td>ReAct、Reflexion-style repair、WorkflowIR repair</td>
-              <td>把失败映射为 counterexample 后，局部修复比整体重试更稳定。</td>
+              <td>错误如何归因？</td>
+              <td>Workflow trace + artifacts</td>
+              <td>最终输出检查 vs 节点级 trace 检查</td>
+              <td>失败可以定位到 query planning、dry-run、repair、export 或 verify_contract 节点。</td>
             </tr>
           </tbody>
         </table>

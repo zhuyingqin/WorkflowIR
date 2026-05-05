@@ -27,5 +27,5 @@
     "total": 5,
     "total_deduped_works": 407
   },
-  "workflowir_batch": "lit-watch/workflowir-batches/20260505T052451Z-workflowir-controlled-litsearch-seed/batch_manifest.json"
+  "workflowir_batch": "lit-watch/workflowir-batches/20260505T052451Z-workflowir-workflow-litsearch-seed/batch_manifest.json"
 }

@@ -1,10 +1,11 @@
-# Controlled Sandbox Literature Search v1
+# Archived Controlled Sandbox Literature Search v1
 
 Dataset id: `controlled_sandbox_litsearch_v1`
 
-This is the first-layer controlled sandbox for literature-search agents. It is
-offline and synthetic by design: every paper, tool result, and injected fault can
-be traced to an oracle record.
+This is an archived generated snapshot from an earlier controlled-sandbox
+direction. The active project documentation now focuses on the real baseline and
+WorkflowIR workflow runs. The snapshot is kept for provenance, but its generator
+script has been removed from the active code path.
 
 ## Files
 
@@ -45,7 +46,5 @@ snapshot satisfies that target and keeps every task offline/reproducible.
 
 ## Rebuild Or Validate
 
-```bash
-python3 scripts/workflowir/build_controlled_litsearch_sandbox.py
-python3 scripts/workflowir/build_controlled_litsearch_sandbox.py --validate-only
-```
+The original builder has been removed. Treat this directory as a static archived
+dataset snapshot.

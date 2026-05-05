@@ -2,7 +2,7 @@
 
 WorkflowIR 是一个用于研究 **工具调用型 LLM Agent 是否能通过结构化工作流变得更可靠** 的实验项目。
 
-当前第一阶段选择的任务域是 **论文检索**。原因很简单：论文检索看起来像一个普通 Agent 任务，但真实运行时很容易出现问题，比如检索式过宽、空结果、超时、漏写输出文件、没有保存中间证据、最终总结和检索结果不一致，或者无法判断错误到底来自提示词、工具、网络、数据源还是 Agent 自身决策。
+当前选择的任务域是 **论文检索**。原因很简单：论文检索看起来像一个普通 Agent 任务，但真实运行时很容易出现问题，比如检索式过宽、空结果、超时、漏写输出文件、没有保存中间证据、最终总结和检索结果不一致，或者无法判断错误到底来自提示词、工具、网络、数据源还是 Agent 自身决策。
 
 WorkflowIR 的目标不是只做一个论文搜索脚本，而是构建一个可复现的数据集和评测框架，用来验证：
 
@@ -49,7 +49,7 @@ create_run
 
 ## 当前实验到底跑什么
 
-目前真正用于说明 WorkflowIR 有效性的，是两组真实运行对比：一组是自由提示词 baseline，一组是 WorkflowIR 受控版本。离线 controlled sandbox 是早期第一层/可选数据层，用于后续错误注入和归因实验，不是当前复现主结果必须运行的步骤。
+目前用于说明 WorkflowIR 有效性的，是两组真实运行对比：一组是自由提示词 baseline，一组是 WorkflowIR 结构化 workflow 版本。
 
 **第一组：真实自由 Agent Runs**
 
@@ -62,7 +62,7 @@ lit-watch/real-agent-trials/
 data/real_agent_litwatch_traces/workflowir_seed/
 ```
 
-**第二组：WorkflowIR 受控 Agent Runs**
+**第二组：WorkflowIR Agent Runs**
 
 对相同主题使用结构化 workflow 执行。Runner 会先检查 query plan，再做 OpenAlex dry-run，发现过宽或空结果后进行修复，然后执行完整导出，最后检查所有必需文件和质量记录。
 
@@ -71,16 +71,6 @@ data/real_agent_litwatch_traces/workflowir_seed/
 ```text
 lit-watch/workflowir-agent-runs/
 data/workflowir_litsearch_eval/
-```
-
-**可选层：Controlled Sandbox**
-
-离线合成的论文检索沙箱。这里的论文、工具返回、错误注入和 oracle 标签都是可控的，用来测试 Agent 是否能理解工具 schema、处理前置条件、识别失败模式并正确归因。它适合做后续 controlled error attribution，但不需要作为当前 WorkflowIR 对比实验的第一步。
-
-主要输出：
-
-```text
-data/controlled_sandbox/litsearch_v1/
 ```
 
 ## 数据集保存什么
@@ -135,22 +125,15 @@ python3 scripts/workflowir/run_real_litwatch_trials.py \
   --max-trials 5
 ```
 
-注意：baseline 会调用 ARIS 和 LLM API，因此需要本地 ARIS binary 和对应 API key。WorkflowIR 受控 runner 在 `--execute` 时只需要能访问 OpenAlex；不加 `--execute` 时只是 plan-only。
+注意：baseline 会调用 ARIS 和 LLM API，因此需要本地 ARIS binary 和对应 API key。WorkflowIR runner 在 `--execute` 时只需要能访问 OpenAlex；不加 `--execute` 时只是 plan-only。
 
 对比 baseline 和 WorkflowIR：
 
 ```bash
 python3 scripts/workflowir/analyze_workflowir_litsearch_effectiveness.py \
   --baseline-batch lit-watch/trial-batches/20260505T014639Z-workflowir-real-litwatch-seed/batch_manifest.json \
-  --workflowir-batch lit-watch/workflowir-batches/20260505T052451Z-workflowir-controlled-litsearch-seed/batch_manifest.json \
+  --workflowir-batch lit-watch/workflowir-batches/20260505T052451Z-workflowir-workflow-litsearch-seed/batch_manifest.json \
   --out-dir data/workflowir_litsearch_eval
-```
-
-可选：如果后面要做离线错误注入或 controlled sandbox 实验，再运行下面命令：
-
-```bash
-python3 scripts/workflowir/build_controlled_litsearch_sandbox.py
-python3 scripts/workflowir/build_controlled_litsearch_sandbox.py --validate-only
 ```
 
 ## 当前种子结果
@@ -162,7 +145,7 @@ Baseline free-form agent:
   completion_rate = 0%
   timeout_rate    = 100%
 
-WorkflowIR-controlled agent:
+WorkflowIR workflow agent:
   completion_rate     = 100%
   timeout_rate        = 0%
   contract_pass_rate  = 100%
@@ -180,7 +163,6 @@ configs/                         实验配置和 prompt contract
 scripts/workflowir/              WorkflowIR 实验、trace 构建和对比分析
 scripts/litwatch/                ARIS + OpenAlex 真实 Agent runner
 scripts/datasets/                辅助数据集脚本
-data/controlled_sandbox/         离线 controlled sandbox 数据
 data/real_agent_litwatch_traces/ 真实 Agent trace 数据集
 data/workflowir_litsearch_eval/  有效性对比报告
 docs/                            中文说明、可视化页面和上游 ARIS 归档文档

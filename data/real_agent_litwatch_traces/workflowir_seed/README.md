@@ -3,9 +3,9 @@
 Dataset id: `real_agent_litwatch_traces_v1`
 
 This dataset is mined from existing ARIS/Codex literature-watch run artifacts.
-Unlike the controlled synthetic sandbox, these rows come from actual agent
-workflow outputs: prompts, reviewer directions, OpenAlex query plans, OpenAlex
-export manifests, summaries, blocked records, stdout, and stderr when present.
+These rows come from actual agent workflow outputs: prompts, reviewer
+directions, OpenAlex query plans, OpenAlex export manifests, summaries, blocked
+records, stdout, and stderr when present.
 
 ## Scope
 
