@@ -18,6 +18,8 @@ This repository is therefore not just a paper-search script. It is a dataset and
 - error attribution;
 - recovery from broad, empty, missing, or failed tool calls.
 
+![WorkflowIR experiment results](docs/workflowir_experiment_results.png)
+
 ## What This Project Does
 
 The current reproducible comparison uses two run types: real free-form baseline runs and WorkflowIR workflow runs.
