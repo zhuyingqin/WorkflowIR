@@ -1,5 +1,9 @@
 # WorkflowIR: Controlled Agent Workflows for Reliable Literature Search
 
+[中文介绍](docs/workflowir-cn.md) | [Visual Guide](docs/workflowir_visual_learning.html)
+
+WorkflowIR 是一个用于研究工具调用型 LLM Agent 可靠性的实验项目。当前第一阶段以论文检索为任务域，对比自由提示词 Agent 和带有 schema、precondition、effect、failure mode 的结构化 WorkflowIR Agent，观察真实调用中的超时、漏文件、宽泛检索、空结果、协议不合规和错误归因问题。
+
 WorkflowIR studies one concrete question:
 
 > Can an explicit workflow contract make tool-using LLM agents more reliable than a free-form prompt?
@@ -164,6 +168,7 @@ data/
   workflowir_litsearch_eval/                 comparison reports
 
 docs/
+  workflowir-cn.md                            Chinese project introduction
   workflowir_visual_learning.html            GitHub Pages visual walkthrough
   upstream-aris-cn.md                        archived upstream ARIS Chinese README
   upstream-aris-en.md                        archived upstream ARIS English README
