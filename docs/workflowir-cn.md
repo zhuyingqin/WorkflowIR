@@ -47,19 +47,11 @@ create_run
 
 这样做的意义是：LLM 可以参与规划和判断，但 workflow runner 负责检查协议、保存中间产物、修复明显错误、记录 trace，并在失败时给出可解释的错误位置。
 
-## 当前包含三层实验
+## 当前实验到底跑什么
 
-**第一层：Controlled Sandbox**
+目前真正用于说明 WorkflowIR 有效性的，是两组真实运行对比：一组是自由提示词 baseline，一组是 WorkflowIR 受控版本。离线 controlled sandbox 是早期第一层/可选数据层，用于后续错误注入和归因实验，不是当前复现主结果必须运行的步骤。
 
-离线合成的论文检索沙箱。这里的论文、工具返回、错误注入和 oracle 标签都是可控的，用来测试 Agent 是否能理解工具 schema、处理前置条件、识别失败模式并正确归因。
-
-主要输出：
-
-```text
-data/controlled_sandbox/litsearch_v1/
-```
-
-**第二层：真实自由 Agent Runs**
+**第一组：真实自由 Agent Runs**
 
 调用真实 ARIS/MiniMax/OpenAlex 运行论文检索任务，收集真实 Agent 调用过程中产生的错误和异常。这一层不是人工编造错误，而是保留实际运行时的 prompt、命令、stdout/stderr、查询计划、OpenAlex 结果、SUMMARY、BLOCKED 状态和 timeout 信息。
 
@@ -70,7 +62,7 @@ lit-watch/real-agent-trials/
 data/real_agent_litwatch_traces/workflowir_seed/
 ```
 
-**第三层：WorkflowIR 受控 Agent Runs**
+**第二组：WorkflowIR 受控 Agent Runs**
 
 对相同主题使用结构化 workflow 执行。Runner 会先检查 query plan，再做 OpenAlex dry-run，发现过宽或空结果后进行修复，然后执行完整导出，最后检查所有必需文件和质量记录。
 
@@ -79,6 +71,16 @@ data/real_agent_litwatch_traces/workflowir_seed/
 ```text
 lit-watch/workflowir-agent-runs/
 data/workflowir_litsearch_eval/
+```
+
+**可选层：Controlled Sandbox**
+
+离线合成的论文检索沙箱。这里的论文、工具返回、错误注入和 oracle 标签都是可控的，用来测试 Agent 是否能理解工具 schema、处理前置条件、识别失败模式并正确归因。它适合做后续 controlled error attribution，但不需要作为当前 WorkflowIR 对比实验的第一步。
+
+主要输出：
+
+```text
+data/controlled_sandbox/litsearch_v1/
 ```
 
 ## 数据集保存什么
@@ -104,13 +106,6 @@ data/workflowir_litsearch_eval/
 
 ```bash
 cd /path/to/WorkflowIR
-```
-
-构建或校验离线 controlled sandbox：
-
-```bash
-python3 scripts/workflowir/build_controlled_litsearch_sandbox.py
-python3 scripts/workflowir/build_controlled_litsearch_sandbox.py --validate-only
 ```
 
 只生成 WorkflowIR 计划，不调用 OpenAlex：
@@ -149,6 +144,13 @@ python3 scripts/workflowir/analyze_workflowir_litsearch_effectiveness.py \
   --baseline-batch lit-watch/trial-batches/20260505T014639Z-workflowir-real-litwatch-seed/batch_manifest.json \
   --workflowir-batch lit-watch/workflowir-batches/20260505T052451Z-workflowir-controlled-litsearch-seed/batch_manifest.json \
   --out-dir data/workflowir_litsearch_eval
+```
+
+可选：如果后面要做离线错误注入或 controlled sandbox 实验，再运行下面命令：
+
+```bash
+python3 scripts/workflowir/build_controlled_litsearch_sandbox.py
+python3 scripts/workflowir/build_controlled_litsearch_sandbox.py --validate-only
 ```
 
 ## 当前种子结果

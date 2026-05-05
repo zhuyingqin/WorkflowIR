@@ -20,19 +20,9 @@ This repository is therefore not just a paper-search script. It is a dataset and
 
 ## What This Project Does
 
-WorkflowIR currently contains three layers.
+The current reproducible comparison uses two run types: real free-form baseline runs and WorkflowIR-controlled runs. The offline controlled sandbox is kept as an optional first-layer artifact for later error-injection studies, but it is not required to reproduce the current WorkflowIR result.
 
-**1. Controlled sandbox**
-
-An offline literature-search sandbox with synthetic papers, declared tools, injected failures, and oracle labels. This layer is used to test whether an agent can obey tool contracts and correctly attribute errors.
-
-Output:
-
-```text
-data/controlled_sandbox/litsearch_v1/
-```
-
-**2. Real baseline agent traces**
+**1. Real baseline agent traces**
 
 A real ARIS/MiniMax/OpenAlex runner that asks an LLM agent to solve literature-search tasks. It saves the actual prompts, commands, stdout/stderr, query plans, OpenAlex outputs, summaries, blocked states, timeouts, and trace labels.
 
@@ -43,7 +33,7 @@ lit-watch/real-agent-trials/
 data/real_agent_litwatch_traces/workflowir_seed/
 ```
 
-**3. WorkflowIR-controlled runs**
+**2. WorkflowIR-controlled runs**
 
 A controlled runner executes the same topics as a workflow graph:
 
@@ -67,19 +57,22 @@ lit-watch/workflowir-agent-runs/
 data/workflowir_litsearch_eval/
 ```
 
+**3. Optional controlled sandbox**
+
+An offline literature-search sandbox with synthetic papers, declared tools, injected failures, and oracle labels. This layer is useful for controlled error attribution tests, but it is not part of the current real-run comparison.
+
+Output:
+
+```text
+data/controlled_sandbox/litsearch_v1/
+```
+
 ## How To Use
 
 From the repository root:
 
 ```bash
 cd /path/to/WorkflowIR
-```
-
-Build or validate the offline controlled sandbox:
-
-```bash
-python3 scripts/workflowir/build_controlled_litsearch_sandbox.py
-python3 scripts/workflowir/build_controlled_litsearch_sandbox.py --validate-only
 ```
 
 Run the WorkflowIR-controlled pipeline in plan-only mode:
@@ -118,6 +111,13 @@ python3 scripts/workflowir/analyze_workflowir_litsearch_effectiveness.py \
   --baseline-batch lit-watch/trial-batches/20260505T014639Z-workflowir-real-litwatch-seed/batch_manifest.json \
   --workflowir-batch lit-watch/workflowir-batches/20260505T052451Z-workflowir-controlled-litsearch-seed/batch_manifest.json \
   --out-dir data/workflowir_litsearch_eval
+```
+
+Optional: rebuild or validate the offline controlled sandbox for separate error-injection experiments:
+
+```bash
+python3 scripts/workflowir/build_controlled_litsearch_sandbox.py
+python3 scripts/workflowir/build_controlled_litsearch_sandbox.py --validate-only
 ```
 
 Open the visual explanation:
