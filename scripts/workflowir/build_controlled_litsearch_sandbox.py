@@ -2478,8 +2478,8 @@ snapshot satisfies that target and keeps every task offline/reproducible.
 ## Rebuild Or Validate
 
 ```bash
-python3 scripts/build_controlled_litsearch_sandbox.py
-python3 scripts/build_controlled_litsearch_sandbox.py --validate-only
+python3 scripts/workflowir/build_controlled_litsearch_sandbox.py
+python3 scripts/workflowir/build_controlled_litsearch_sandbox.py --validate-only
 ```
 """
 

@@ -1,3 +1,7 @@
+# Archived Upstream README: ARIS-Code Chinese
+
+This file was previously `README_CN.md`. It is kept as upstream ARIS-Code reference material for WorkflowIR.
+
 # 🌙 ARIS-Code — Auto Research in Sleep
 
 ```
@@ -13,8 +17,6 @@
          executor  ←→  reviewer
          让 AI 边睡边帮你做研究
 ```
-
-![ARIS-Code Screenshot](docs/screenshot.png)
 
 > **对抗·多智能体研究自动化 CLI**
 > Executor 执行 · Reviewer 审查 · 迭代精进
@@ -324,4 +326,3 @@ MIT License © 2025 ARIS-Code Contributors
 <div align="center">
   <sub>🌙 让 AI 在你睡觉时帮你做研究 · Built with ❤️ and Rust</sub>
 </div>
-

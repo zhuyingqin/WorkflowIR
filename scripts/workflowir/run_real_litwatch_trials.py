@@ -94,7 +94,7 @@ def build_trial_command(
     trial: dict[str, Any],
     batch_dir: Path,
 ) -> tuple[list[str], Path | None]:
-    runner_script = repo_root / "scripts" / "aris_openalex_lit_watch.py"
+    runner_script = repo_root / "scripts" / "litwatch" / "aris_openalex_lit_watch.py"
     command = [sys.executable, str(runner_script)]
     output_dir = Path(trial.get("output_dir") or config.get("output_dir") or "lit-watch/real-agent-trials")
     project = trial["name"]
@@ -249,7 +249,7 @@ def rebuild_trace_dataset(repo_root: Path, config: dict[str, Any], batch_manifes
     trace_out_dir = Path(config.get("trace_out_dir") or "data/real_agent_litwatch_traces/latest")
     command = [
         sys.executable,
-        str(repo_root / "scripts" / "build_real_litwatch_trace_dataset.py"),
+        str(repo_root / "scripts" / "workflowir" / "build_real_litwatch_trace_dataset.py"),
         "--runs-dir",
         str(runs_dir),
         "--out-dir",

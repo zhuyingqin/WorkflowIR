@@ -1,3 +1,7 @@
+# Archived Upstream README: ARIS-Code English
+
+This file was previously `README_EN.md`. It is kept as upstream ARIS-Code reference material for WorkflowIR.
+
 # 🌙 ARIS-Code — Auto Research in Sleep
 
 ```
@@ -13,8 +17,6 @@
          executor  ←→  reviewer
          Let AI do research while you sleep
 ```
-
-![ARIS-Code Screenshot](aris-code-screenshot.png)
 
 > **Adversarial · Multi-Agent Research Automation CLI**
 > Executor acts · Reviewer critiques · Iterate to excellence

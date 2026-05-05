@@ -2,12 +2,12 @@
 set -euo pipefail
 
 if [ "$#" -ne 1 ]; then
-  echo "Usage: scripts/run_aris_prompt.sh <prompt.md>" >&2
+  echo "Usage: scripts/litwatch/run_aris_prompt.sh <prompt.md>" >&2
   exit 64
 fi
 
 prompt_file="$1"
-repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 if [ ! -f "$prompt_file" ]; then
   if [ -f "$repo_root/$prompt_file" ]; then
